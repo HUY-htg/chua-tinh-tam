@@ -1,0 +1,4 @@
+# Local-only files that should not be published
+*.backup.html
+.claude/
+.DS_Store
