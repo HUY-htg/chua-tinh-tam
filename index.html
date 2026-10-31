@@ -1156,6 +1156,156 @@
                 animation: none !important;
             }
         }
+
+        /* Enhanced 3D Visitor & Devotee Floating Labels */
+        .visitor-label-3d {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 11.5px;
+            white-space: nowrap;
+            pointer-events: none;
+            color: #f6e6c2;
+            background: rgba(16, 10, 7, 0.76);
+            border: 1px solid rgba(236, 198, 112, 0.35);
+            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transform: translate(-50%, calc(-100% - 10px));
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 25;
+        }
+        .visitor-label-3d::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -5px;
+            width: 8px;
+            height: 8px;
+            transform: translateX(-50%) rotate(45deg);
+            background: rgba(16, 10, 7, 0.76);
+            border-right: 1px solid rgba(236, 198, 112, 0.35);
+            border-bottom: 1px solid rgba(236, 198, 112, 0.35);
+        }
+        .visitor-label-3d.is-phat-tu {
+            color: #fef3c7;
+            background: rgba(26, 16, 9, 0.88);
+            border: 1px solid rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.25), 0 8px 24px -6px rgba(0, 0, 0, 0.75);
+        }
+        .visitor-label-3d.is-phat-tu::after {
+            background: rgba(26, 16, 9, 0.88);
+            border-right: 1px solid rgba(245, 158, 11, 0.6);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.6);
+        }
+        .visitor-label-3d.is-lu-khach {
+            color: #f1f5f9;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.18), 0 8px 24px -6px rgba(0, 0, 0, 0.75);
+        }
+        .visitor-label-3d.is-lu-khach::after {
+            background: rgba(15, 23, 42, 0.85);
+            border-right: 1px solid rgba(148, 163, 184, 0.45);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.45);
+        }
+        .visitor-label-3d.is-local {
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.45), 0 8px 24px -6px rgba(0, 0, 0, 0.85);
+            border-color: #facc15 !important;
+        }
+        .visitor-label-3d .badge-role {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.12rem 0.48rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .visitor-label-3d .badge-phat-tu {
+            background: rgba(245, 158, 11, 0.25);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+        .visitor-label-3d .badge-lu-khach {
+            background: rgba(56, 189, 248, 0.2);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.45);
+        }
+        .visitor-label-3d .seat-badge {
+            background: rgba(217, 119, 6, 0.35);
+            color: #fde68a;
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            padding: 0.08rem 0.42rem;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .visitor-label-3d .local-tag {
+            color: #fde047;
+            font-weight: 700;
+            font-size: 10px;
+            background: rgba(234, 179, 8, 0.22);
+            padding: 0.05rem 0.35rem;
+            border-radius: 4px;
+            border: 1px solid rgba(234, 179, 8, 0.35);
+        }
+
+        /* Sơ Đồ 50 Tọa Cụ Modal */
+        .seat-map-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.45rem;
+        }
+        .seat-box {
+            position: relative;
+            padding: 0.5rem 0.35rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            font-size: 11px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            flex-col;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+        }
+        .seat-box:hover {
+            transform: translateY(-2px);
+            border-color: rgba(245, 158, 11, 0.7);
+        }
+        .seat-box.is-phat-tu {
+            background: radial-gradient(100% 100% at 50% 0%, rgba(217, 119, 6, 0.35), rgba(41, 24, 10, 0.85));
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #fef3c7;
+        }
+        .seat-box.is-lu-khach {
+            background: radial-gradient(100% 100% at 50% 0%, rgba(30, 58, 138, 0.35), rgba(15, 23, 42, 0.85));
+            border-color: rgba(148, 163, 184, 0.4);
+            color: #e2e8f0;
+        }
+        .seat-box.is-vacant {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed rgba(234, 179, 8, 0.35);
+            color: rgba(254, 243, 199, 0.5);
+        }
+        .seat-box.is-vacant:hover {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: #facc15;
+            color: #fef08a;
+        }
+        .seat-box.is-local {
+            box-shadow: 0 0 14px rgba(250, 204, 21, 0.6);
+            border-color: #facc15 !important;
+            ring: 1px solid #facc15;
+        }
+
     </style>
 </head>
 <body class="relative w-screen h-screen overflow-hidden select-none font-sans">
@@ -1269,18 +1419,32 @@
                     <i class="fa-solid fa-torii-gate"></i>
                     <span>Sân Vườn</span>
                 </button>
-                <button id="tab-hall" onclick="switchPrimaryMode('hall')" class="seg-btn flex-1 md:flex-initial">
+                <button id="tab-hall" onclick="requestEnterSanctuaryHall()" class="seg-btn flex-1 md:flex-initial">
                     <i class="fa-solid fa-place-of-worship"></i>
                     <span>Chánh Điện</span>
                 </button>
             </nav>
 
-            <!-- Right Controls: Online Visitors, Ambient Sound, Hide UI -->
+            <!-- Right Controls: Sanctuary 50 Seats, User Identity, Ambient Sound, Hide UI -->
             <div class="pointer-events-auto flex items-center gap-1.5 sm:gap-2 order-2 md:order-3">
-                <button id="btn-member" onclick="openRegistration()" class="btn glass-thin h-9 w-9 sm:w-auto sm:px-3.5 text-[12px] text-gold-100 !border-gold-300/35 hover:!border-gold-300/70" title="Đăng ký làm Phật tử">
-                    <i class="fa-solid fa-id-card text-gold-300 text-[13px]"></i>
-                    <span id="text-member" class="hidden sm:inline">Đăng ký Phật tử</span>
+                <!-- Chánh Điện 50-Seat Counter Pill -->
+                <button id="btn-sanctuary-seats" onclick="openSeatMapModal()" class="btn glass-thin h-9 px-2.5 sm:px-3 text-[12px] text-gold-200 !border-gold-300/35 hover:!border-gold-300/70 flex items-center gap-1.5" title="Sơ đồ 50 chỗ ngồi & Hàng chờ Chánh Điện">
+                    <i class="fa-solid fa-place-of-worship text-gold-300 text-[13px]"></i>
+                    <span class="hidden sm:inline">Chánh Điện:</span>
+                    <strong id="hud-seat-count" class="text-gold-200 font-bold">22/50</strong>
+                    <span id="hud-queue-count" class="hidden text-amber-400 font-medium text-[10.5px]"></span>
                 </button>
+
+                <!-- User Identity Badge (Phật tử vs Lữ khách) -->
+                <button id="btn-user-identity" onclick="handleUserIdentityClick()" class="btn glass-thin h-9 px-2.5 sm:px-3 text-[12px] flex items-center gap-1.5 min-w-0" title="Danh phận"></button>
+
+                <!-- Waiting Queue Pill (Shown when user is waiting outside) -->
+                <div id="queue-floating-pill" class="hidden glass-thin h-9 px-3 rounded-full border border-amber-500/50 bg-amber-950/70 text-amber-200 text-[11.5px] items-center gap-1.5 animate-pulse">
+                    <i class="fa-solid fa-hourglass-half text-amber-400 text-[12px]"></i>
+                    <span>Hàng chờ: #<strong id="queue-position-num">1</strong></span>
+                    <button onclick="cancelWaitingQueue()" class="text-[10px] text-amber-300/80 hover:text-white underline ml-1">Rời hàng</button>
+                </div>
+
                 <button id="btn-ambient" onclick="toggleAmbientSound()" class="icon-btn glass-thin xl:w-auto xl:px-3.5"
                     title="Bật/Tắt âm thanh gió trúc, chim hót sân chùa">
                     <i id="icon-ambient" class="fa-solid fa-volume-xmark text-[13px]"></i>
@@ -1780,6 +1944,148 @@
                         <i class="fa-solid fa-lock mt-0.5"></i>
                         <span>Thẻ và thông tin chỉ lưu trên thiết bị này. Nếu xoá dữ liệu trình duyệt, bạn cần đăng ký lại.</span>
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================================================
+         MODAL 1: CHÁNH ĐIỆN ĐÃ ĐỦ 50 CHỖ (HÀNG CHỜ NGOÀI SÂN)
+    ========================================================================== -->
+    <div id="sanctuary-full-modal" class="hidden fixed inset-0 z-[55] flex items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+        <div class="reg-backdrop absolute inset-0" onclick="closeSanctuaryFullModal()"></div>
+        <div class="reg-panel glass relative w-full max-w-md rounded-[1.6rem] flex flex-col overflow-hidden p-6 text-center shadow-2xl border border-amber-500/40">
+            <div class="medallion w-14 h-14 mx-auto mb-3 shadow-[0_0_24px_rgba(245,158,11,0.35)]">
+                <i class="fa-solid fa-place-of-worship text-[22px] text-amber-300"></i>
+            </div>
+            <div class="eyebrow text-amber-300/80 mb-1">Trang nghiêm thanh tịnh</div>
+            <h3 class="font-serif text-2xl font-bold gold-text mb-2">Chánh Điện Đã Đủ 50 Chỗ Ngồi</h3>
+            <p class="text-[13.5px] leading-relaxed text-gold-50/80 mb-4">
+                Hiện tại Chánh Điện đang có đủ <strong>50 vị thiện nam tín nữ</strong> đang tọa thiền lễ Phật trang nghiêm. Kính mong quý vị hoan hỷ dừng bước bên ngoài sân chùa chờ đến lượt.
+            </p>
+            <div class="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/30 mb-5 text-left text-[12.5px] flex flex-col gap-1.5">
+                <div class="flex justify-between items-center text-gold-100">
+                    <span>Trạng thái Chánh Điện:</span>
+                    <strong class="text-amber-400 font-semibold">50/50 Chỗ (Đầy)</strong>
+                </div>
+                <div class="flex justify-between items-center text-gold-100">
+                    <span>Vị trí của bạn trong hàng chờ:</span>
+                    <strong id="modal-queue-position" class="text-amber-300 font-bold text-sm">#1</strong>
+                </div>
+                <div class="text-[11.5px] text-gold-300/70 mt-1 italic">
+                    Khi có người xuất điện ra sân, hệ thống sẽ tự động thỉnh mời bạn vào Chánh Điện!
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+                <button onclick="confirmJoinWaitingQueue()" class="btn btn-gold h-11 flex-1 text-[13.5px]">
+                    <i class="fa-solid fa-hourglass-half text-xs"></i>
+                    <span>Xếp hàng chờ ngoài sân</span>
+                </button>
+                <button onclick="closeSanctuaryFullModal()" class="btn btn-ghost h-11 flex-1 text-[13.5px]">
+                    <span>Dạo bước sân chùa</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         MODAL 2: SƠ ĐỒ 50 CHỖ NGỒI CHÁNH ĐIỆN & HÀNG CHỜ
+    ========================================================================== -->
+    <div id="seat-map-modal" class="hidden fixed inset-0 z-[55] flex items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+        <div class="reg-backdrop absolute inset-0" onclick="closeSeatMapModal()"></div>
+        <div class="reg-panel glass relative w-full max-w-4xl rounded-[1.6rem] max-h-[94vh] flex flex-col overflow-hidden shadow-2xl border border-gold-300/40">
+            <div class="flex items-center justify-between gap-3 px-5 sm:px-6 pt-5 pb-2 shrink-0 border-b border-gold-300/15">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="medallion w-10 h-10 shrink-0">
+                        <i class="fa-solid fa-place-of-worship text-[17px]"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="eyebrow">Đạo Tràng Chánh Điện Chùa Tịnh Tâm</div>
+                        <h2 class="font-serif text-[22px] sm:text-[24px] font-bold gold-text leading-tight py-0.5 truncate">
+                            Sơ Đồ 50 Chỗ Ngồi & Hàng Chờ
+                        </h2>
+                    </div>
+                </div>
+                <button onclick="closeSeatMapModal()" class="icon-btn" aria-label="Đóng">
+                    <i class="fa-solid fa-xmark text-[13px]"></i>
+                </button>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="px-5 sm:px-6 py-2.5 bg-black/20 flex flex-wrap items-center justify-between gap-3 text-[12px] border-b border-gold-300/10 shrink-0">
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span><strong id="seatmap-stat-phattu" class="text-amber-200">0</strong> Phật tử</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span><strong id="seatmap-stat-lukhach" class="text-sky-200">0</strong> Lữ khách</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-dashed border-amber-300/60"></span><strong id="seatmap-stat-vacant" class="text-gold-100">0</strong> Trống</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-yellow-400 ring-2 ring-yellow-400/40"></span><span class="text-yellow-300">Vị trí của bạn</span></span>
+                </div>
+                <div class="text-gold-200/90 font-medium">
+                    Sức chứa: <strong id="seatmap-capacity" class="text-gold-300">0/50</strong>
+                </div>
+            </div>
+
+            <div class="modal-scroll overflow-y-auto px-5 sm:px-6 py-4 flex flex-col gap-4">
+                <!-- Altar Indicator -->
+                <div class="w-full py-2 rounded-xl bg-amber-950/30 border border-amber-500/25 text-center text-gold-200 text-xs font-serif font-semibold tracking-wider uppercase flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-om text-amber-400"></i>
+                    Bàn Thờ Tam Bảo & Đức Phật Thích Ca Mâu Ni
+                    <i class="fa-solid fa-om text-amber-400"></i>
+                </div>
+
+                <!-- 50 Cushions Grid: Left Wing (25) & Right Wing (25) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Left Wing -->
+                    <div class="flex flex-col gap-1.5 p-3 rounded-2xl bg-black/25 border border-gold-300/15">
+                        <div class="text-[11px] font-semibold text-gold-300/80 px-1 uppercase tracking-wider flex items-center justify-between">
+                            <span>Tả Ban (Hàng 1 - 25)</span>
+                            <span class="text-[10px] text-dim">25 Tọa Cụ</span>
+                        </div>
+                        <div id="seatmap-left-wing" class="seat-map-grid"></div>
+                    </div>
+
+                    <!-- Right Wing -->
+                    <div class="flex flex-col gap-1.5 p-3 rounded-2xl bg-black/25 border border-gold-300/15">
+                        <div class="text-[11px] font-semibold text-gold-300/80 px-1 uppercase tracking-wider flex items-center justify-between">
+                            <span>Hữu Ban (Hàng 26 - 50)</span>
+                            <span class="text-[10px] text-dim">25 Tọa Cụ</span>
+                        </div>
+                        <div id="seatmap-right-wing" class="seat-map-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Waiting Queue List -->
+                <div class="p-3.5 rounded-2xl bg-black/20 border border-gold-300/15">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-xs font-semibold text-gold-200 flex items-center gap-2">
+                            <i class="fa-solid fa-hourglass-half text-amber-400"></i>
+                            <span>Hàng Chờ Ngoài Sân Chùa</span>
+                            <span id="seatmap-queue-count" class="px-2 py-0.5 rounded-full text-[10.5px] bg-amber-500/20 text-amber-300 border border-amber-500/30">0 người</span>
+                        </div>
+                        <span class="text-[11px] text-dim">Tự động mời vào khi có chỗ trống</span>
+                    </div>
+                    <div id="seatmap-queue-list" class="flex flex-wrap gap-2 text-xs text-gold-100/80">
+                        <div class="text-dim italic text-xs py-1">Hiện không có ai đang chờ bên ngoài.</div>
+                    </div>
+                </div>
+
+                <!-- Test / Simulation Controls for User Testing -->
+                <div class="p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span class="text-amber-200 font-medium flex items-center gap-1.5">
+                        <i class="fa-solid fa-flask text-amber-400"></i>
+                        <span>Công cụ thử nghiệm 50 chỗ & Hàng chờ:</span>
+                    </span>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="testSimulateFullSanctuary()" class="btn btn-ghost !h-8 !px-3 text-[11px] !border-amber-500/30 hover:!border-amber-400">
+                            🧪 Lấp đầy 50 chỗ (Kiểm tra hàng chờ)
+                        </button>
+                        <button onclick="testSimulateOnePersonLeaves()" class="btn btn-ghost !h-8 !px-3 text-[11px] !border-amber-500/30 hover:!border-amber-400">
+                            🚪 1 người ra sân (Nhận người chờ)
+                        </button>
+                        <button onclick="testResetSanctuarySeats()" class="btn btn-ghost !h-8 !px-3 text-[11px] !border-amber-500/30 hover:!border-amber-400">
+                            🔄 Đặt lại bình thường
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2832,6 +3138,10 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            // Enhanced visual fidelity: ACES Filmic Tone Mapping & sRGB color space
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.12;
+            renderer.outputEncoding = THREE.sRGBEncoding;
             container.appendChild(renderer.domElement);
 
             raycaster = new THREE.Raycaster();
@@ -2883,6 +3193,7 @@
                 color: 0x64748b, // Màu Áo Lam Phật Tử truyền thống
                 roughness: 0.85
             });
+            fpsHandsRobeMat = robeMat;
             const cuffMat = new THREE.MeshStandardMaterial({
                 color: 0x475569,
                 roughness: 0.8
@@ -2938,6 +3249,7 @@
                 malaGroup.add(bead);
             }
             palmsGroup.add(malaGroup);
+            fpsHandsMalaGroup = malaGroup;
 
             // 3 Held Incense Sticks (Hiển thị trên tay khi Phật tử Dâng Hương)
             fpsHeldIncenseGroup = new THREE.Group();
@@ -4500,6 +4812,7 @@
             const haloBackLight = new THREE.PointLight(0xffb703, 2.2, 14);
             haloBackLight.position.set(0, 0.2, 0.65);
             haloGroup.add(haloBackLight);
+            buddhaHaloPointLight = haloBackLight;
 
             buddhaHaloMesh = null; // Keep Heart Sutra text upright just like the real altar lamp
         }
@@ -4791,19 +5104,8 @@
                 sanctuaryHallGroup.add(board);
             });
 
-            // 6. Meditation cushions (Bồ Đoàn) in three rows
-            const cushionMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
-            const leadCushionMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.8 });
-            [[0, 1.5], [-3.2, 2.2], [3.2, 2.2], [-3.2, 5.2], [0, 5.2], [3.2, 5.2], [-3.2, 8.2], [0, 8.2], [3.2, 8.2]].forEach(([mx, mz], idx) => {
-                const cushion = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.92, 0.24, 24), idx === 0 ? leadCushionMat : cushionMat);
-                cushion.position.set(mx, 0.14, mz);
-                cushion.receiveShadow = true;
-                sanctuaryHallGroup.add(cushion);
-                const rim = new THREE.TorusGeometry(0.86, 0.05, 10, 24);
-                rim.rotateX(Math.PI / 2);
-                rim.translate(mx, 0.24, mz);
-                hallGold.add(rim);
-            });
+            // 6. EXACTLY 50 MEDITATION CUSHIONS (BỒ ĐOÀN SEN VÀNG) SẮP XẾP ĐỐI XỨNG HAI BÊN
+            SanctuarySeatsManager.initSeats(sanctuaryHallGroup, hallGold);
 
             // 7. Bronze tripod censers (đỉnh đồng) flanking the altar
             [-6.4, 6.4].forEach(cx => {
@@ -5481,73 +5783,1175 @@
             });
         }
 
-        function buildVisitors3D() {
-            const visitorData = [
-                { name: "Phật tử Diệu Âm", prayer: "Nam Mô A Di Đà Phật", color: 0x6b7f99, x: 0, z: 6, mode: 'walk', speed: 0.4 },
-                { name: "Cư sĩ Minh Quân", prayer: "Cầu gia đạo bình an", color: 0x8a5a2b, x: -7, z: 8, mode: 'pond', speed: 0.25 },
-                { name: "Phật tử Tâm An", prayer: "Lắng nghe tiếng chuông chùa", color: 0x5d6b7c, x: 10.5, z: 6.5, mode: 'bell', speed: 0.2 }
-            ];
 
-            const labelsContainer = document.getElementById('labels-3d-container');
+        /* =========================================================================
+           SANGHA MULTIPLAYER, 50-SEAT SANCTUARY & DEVOTEE IDENTITY SYSTEM
+           ========================================================================= */
+        let fpsHandsRobeMat = null;
+        let fpsHandsMalaGroup = null;
+        let buddhaHaloPointLight = null;
 
-            visitorData.forEach((v, idx) => {
+        // Local Player Identity State
+        const localPlayerIdentity = {
+            id: 'usr_' + Math.random().toString(36).substr(2, 9),
+            role: 'LU_KHACH', // 'PHAT_TU' | 'LU_KHACH'
+            name: '',
+            dharmaName: '',
+            guestId: Math.floor(10 + Math.random() * 89),
+            seatId: null,
+            isLocalPlayer: true
+        };
+
+        function initLocalPlayerIdentity() {
+            loadMemberProfile();
+            if (memberProfile) {
+                localPlayerIdentity.role = 'PHAT_TU';
+                localPlayerIdentity.name = memberProfile.dharmaName || memberProfile.fullName;
+                localPlayerIdentity.dharmaName = memberProfile.dharmaName || '';
+            } else {
+                localPlayerIdentity.role = 'LU_KHACH';
+                let savedGuest = null;
+                try { savedGuest = localStorage.getItem('tinhTam.guestName'); } catch(e){}
+                if (savedGuest) {
+                    localPlayerIdentity.name = savedGuest;
+                } else {
+                    localPlayerIdentity.name = `Lữ khách #${localPlayerIdentity.guestId}`;
+                    try { localStorage.setItem('tinhTam.guestName', localPlayerIdentity.name); } catch(e){}
+                }
+            }
+            updateUserIdentityUI();
+            updateFirstPersonHandsRole();
+        }
+
+        function updateUserIdentityUI() {
+            const btn = document.getElementById('btn-user-identity');
+            if (!btn) return;
+
+            const isPhatTu = localPlayerIdentity.role === 'PHAT_TU';
+            if (isPhatTu) {
+                btn.className = 'btn glass-thin h-9 px-2.5 sm:px-3.5 text-[12px] flex items-center gap-1.5 !border-amber-400/40 text-amber-200 bg-amber-950/35 shadow-[0_0_12px_rgba(245,158,11,0.2)] hover:!border-amber-400/80 shrink-0';
+                btn.title = `Thẻ Phật tử của ${localPlayerIdentity.name} (Bấm để xem thẻ)`;
+                btn.innerHTML = `
+                    <i class="fa-solid fa-dharmachakra text-amber-400 text-[13px]"></i>
+                    <span class="font-bold text-amber-300">Phật tử</span>
+                    <span class="text-gold-100 font-medium truncate max-w-[110px] sm:max-w-[140px]">${localPlayerIdentity.name}</span>
+                `;
+            } else {
+                btn.className = 'btn glass-thin h-9 px-2.5 sm:px-3 text-[12px] flex items-center gap-1.5 !border-slate-500/35 text-slate-200 hover:!border-amber-400/60 shrink-0';
+                btn.title = 'Lữ khách vãng cảnh (Bấm để đăng ký làm Phật tử)';
+                btn.innerHTML = `
+                    <i class="fa-solid fa-dove text-sky-400 text-[12px]"></i>
+                    <span class="text-slate-300">Lữ khách</span>
+                    <span class="text-slate-200 truncate max-w-[90px] sm:max-w-[120px] font-medium">${localPlayerIdentity.name}</span>
+                    <span class="hidden sm:inline-flex text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/35 ml-0.5">Đăng ký</span>
+                `;
+            }
+        }
+
+        function handleUserIdentityClick() {
+            if (localPlayerIdentity.role === 'PHAT_TU') {
+                openRegistration('card');
+            } else {
+                openRegistration('form');
+            }
+        }
+
+        function updateFirstPersonHandsRole() {
+            if (!fpsHandsRobeMat) return;
+            const isPhatTu = localPlayerIdentity.role === 'PHAT_TU';
+            if (isPhatTu) {
+                fpsHandsRobeMat.color.setHex(0x64748b); // Áo Lam thanh tịnh
+                if (fpsHandsMalaGroup) fpsHandsMalaGroup.visible = true;
+            } else {
+                fpsHandsRobeMat.color.setHex(0xb8ab96); // Áo vải mộc mạc Lữ khách
+                if (fpsHandsMalaGroup) fpsHandsMalaGroup.visible = false;
+            }
+        }
+
+        function updateSanctuaryHudCount() {
+            const countEl = document.getElementById('hud-seat-count');
+            const queueEl = document.getElementById('hud-queue-count');
+            if (!countEl) return;
+
+            const occupied = SanctuarySeatsManager.getOccupiedCount();
+            countEl.textContent = `${occupied}/50`;
+
+            const queueCount = WaitingQueueManager.queue.length;
+            if (queueEl) {
+                if (queueCount > 0) {
+                    queueEl.textContent = `(${queueCount} chờ)`;
+                    queueEl.classList.remove('hidden');
+                } else {
+                    queueEl.classList.add('hidden');
+                }
+            }
+
+            const btn = document.getElementById('btn-sanctuary-seats');
+            if (btn) {
+                if (occupied >= 50) {
+                    btn.classList.add('!border-amber-500', 'bg-amber-950/30');
+                } else {
+                    btn.classList.remove('!border-amber-500', 'bg-amber-950/30');
+                }
+            }
+        }
+
+        // Texture generator for each of the 50 seat numbers
+        function createSeatNumberTexture(id) {
+            const c = document.createElement('canvas');
+            c.width = c.height = 128;
+            const ctx = c.getContext('2d');
+            ctx.clearRect(0, 0, 128, 128);
+
+            // Gilded circular border
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.75)';
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.arc(64, 64, 55, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Lotus petal dots
+            for (let i = 0; i < 8; i++) {
+                const ang = (i / 8) * Math.PI * 2;
+                const px = 64 + Math.cos(ang) * 44;
+                const py = 64 + Math.sin(ang) * 44;
+                ctx.fillStyle = 'rgba(253, 224, 71, 0.55)';
+                ctx.beginPath();
+                ctx.arc(px, py, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Seat Number
+            ctx.fillStyle = '#fef08a';
+            ctx.font = 'bold 38px "Be Vietnam Pro", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${id}`, 64, 64);
+
+            const tex = new THREE.CanvasTexture(c);
+            tex.needsUpdate = true;
+            return tex;
+        }
+
+        /* -------------------------------------------------------------------------
+           1. SANCTUARY SEATS MANAGER (TỐI ĐA ĐÚNG 50 CHỖ NGỒI - BỒ ĐOÀN SEN VÀNG)
+        ------------------------------------------------------------------------- */
+        const SanctuarySeatsManager = {
+            MAX_SEATS: 50,
+            seats: [], // { id, x, z, group, baseMesh, rimMesh, occupant: null }
+
+            initSeats(parentGroup, goldBatch) {
+                this.seats = [];
+                const rushMat = new THREE.MeshStandardMaterial({
+                    color: 0x713f12,
+                    roughness: 0.75,
+                    metalness: 0.08
+                });
+                const leadMat = new THREE.MeshStandardMaterial({
+                    color: 0x9a3412,
+                    roughness: 0.7,
+                    metalness: 0.12
+                });
+                const lotusTopMat = new THREE.MeshStandardMaterial({
+                    color: 0x92400e,
+                    roughness: 0.65,
+                    emissive: 0x3d2105,
+                    emissiveIntensity: 0.22
+                });
+
+                // Exactly 50 cushions arranged into 2 wings (25 Left, 25 Right):
+                // 5 rows in Z: 2.2, 5.0, 7.8, 10.6, 13.4
+                // 5 columns Left Wing: -3.2, -5.3, -7.4, -9.5, -11.6
+                // 5 columns Right Wing: +3.2, +5.3, +7.4, +9.5, +11.6
+                // Leaving central red runner (X: -2.2 to +2.2) clear as ceremonial walkway!
+                const rowsZ = [2.2, 5.0, 7.8, 10.6, 13.4];
+                const leftColsX = [-3.2, -5.3, -7.4, -9.5, -11.6];
+                const rightColsX = [3.2, 5.3, 7.4, 9.5, 11.6];
+
+                let seatId = 1;
+                // Left Wing: Seats 1 - 25
+                for (let r = 0; r < rowsZ.length; r++) {
+                    const z = rowsZ[r];
+                    for (let c = 0; c < leftColsX.length; c++) {
+                        const x = leftColsX[c];
+                        this.createCushion(parentGroup, goldBatch, seatId++, x, z, (r === 0 && c === 0) ? leadMat : rushMat, lotusTopMat);
+                    }
+                }
+                // Right Wing: Seats 26 - 50
+                for (let r = 0; r < rowsZ.length; r++) {
+                    const z = rowsZ[r];
+                    for (let c = 0; c < rightColsX.length; c++) {
+                        const x = rightColsX[c];
+                        this.createCushion(parentGroup, goldBatch, seatId++, x, z, (r === 0 && c === 0) ? leadMat : rushMat, lotusTopMat);
+                    }
+                }
+            },
+
+            createCushion(parentGroup, goldBatch, id, x, z, baseMat, topMat) {
                 const group = new THREE.Group();
-                group.position.set(v.x, 0, v.z);
+                group.position.set(x, 0, z);
 
-                // Flowing robe (áo tràng) turned on a lathe, with head, hair & hands joined in prayer
-                const robeMat = new THREE.MeshStandardMaterial({ color: v.color, roughness: 0.82 });
-                const skinMat = new THREE.MeshStandardMaterial({ color: 0xe9c9a0, roughness: 0.6 });
-                const hairMat = new THREE.MeshStandardMaterial({ color: 0x1f1610, roughness: 0.7 });
-                const robeProfile = [[0, 0], [0.44, 0], [0.42, 0.18], [0.34, 0.75], [0.29, 1.15], [0.27, 1.32], [0.15, 1.45], [0.09, 1.5], [0, 1.5]]
-                    .map(([px, py]) => new THREE.Vector2(px, py));
-                const body = new THREE.Mesh(new THREE.LatheGeometry(robeProfile, 22), robeMat);
-                body.castShadow = true;
-                group.add(body);
+                // Rush mat base cylinder
+                const base = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.78, 0.20, 24), baseMat);
+                base.position.y = 0.10;
+                base.receiveShadow = true;
+                base.userData = { interactType: 'sanctuary_cushion', seatId: id };
+                group.add(base);
 
-                const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 18, 14), skinMat);
-                head.position.y = 1.68;
-                head.castShadow = true;
-                group.add(head);
-                const hair = new THREE.Mesh(new THREE.SphereGeometry(0.212, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat);
-                hair.position.y = 1.69;
-                hair.rotation.x = -0.3;
-                group.add(hair);
-                if (idx !== 1) {
-                    const bun = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 10), hairMat);
-                    bun.position.set(0, 1.76, -0.19);
-                    group.add(bun);
+                // Top lotus cushion surface
+                const top = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.72, 0.05, 24), topMat);
+                top.position.y = 0.21;
+                top.userData = { interactType: 'sanctuary_cushion', seatId: id };
+                group.add(top);
+
+                // Gilded rim
+                const rim = new THREE.Mesh(
+                    new THREE.TorusGeometry(0.70, 0.038, 10, 28),
+                    new THREE.MeshStandardMaterial({
+                        color: 0xfacc15,
+                        metalness: 0.85,
+                        roughness: 0.25,
+                        emissive: 0x854d0e,
+                        emissiveIntensity: 0.2
+                    })
+                );
+                rim.rotation.x = Math.PI / 2;
+                rim.position.y = 0.22;
+                rim.userData = { interactType: 'sanctuary_cushion', seatId: id };
+                group.add(rim);
+
+                // Number disc
+                const disc = new THREE.Mesh(
+                    new THREE.CircleGeometry(0.32, 24),
+                    new THREE.MeshBasicMaterial({
+                        map: createSeatNumberTexture(id),
+                        transparent: true,
+                        opacity: 0.85
+                    })
+                );
+                disc.rotation.x = -Math.PI / 2;
+                disc.position.y = 0.236;
+                disc.userData = { interactType: 'sanctuary_cushion', seatId: id };
+                group.add(disc);
+
+                parentGroup.add(group);
+
+                this.seats.push({
+                    id,
+                    x,
+                    z,
+                    group,
+                    baseMesh: base,
+                    rimMesh: rim,
+                    occupant: null // { id, name, role, isLocalPlayer, avatarMesh, labelEl, prayer }
+                });
+            },
+
+            getOccupiedCount() {
+                return this.seats.filter(s => s.occupant !== null).length;
+            },
+
+            isFull() {
+                return this.getOccupiedCount() >= this.MAX_SEATS;
+            },
+
+            findSeat(id) {
+                return this.seats.find(s => s.id === id);
+            },
+
+            findSeatByOccupantId(occupantId) {
+                return this.seats.find(s => s.occupant && s.occupant.id === occupantId) || null;
+            },
+
+            findFirstAvailableSeat() {
+                return this.seats.find(s => s.occupant === null) || null;
+            },
+
+            assignSeat(occupant, preferredId) {
+                let seat = preferredId ? this.findSeat(preferredId) : null;
+                if (!seat || seat.occupant !== null) {
+                    seat = this.findFirstAvailableSeat();
+                }
+                if (!seat) return null; // Hall is full
+
+                // If occupant was on another seat, vacate previous
+                this.vacateByOccupantId(occupant.id);
+
+                seat.occupant = occupant;
+                occupant.seatId = seat.id;
+
+                if (occupant.avatarMesh) {
+                    occupant.avatarMesh.position.set(seat.x, 0.16, seat.z);
+                    occupant.avatarMesh.rotation.y = 0; // facing Buddha
+                    occupant.avatarMesh.visible = (state.primaryMode === 'hall');
+                    if (occupant.setSitting) occupant.setSitting(true);
                 }
 
-                [-1, 1].forEach(s => {
-                    const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.11, 0.48, 10), robeMat);
-                    sleeve.position.set(s * 0.16, 1.14, 0.2);
-                    sleeve.rotation.set(-1.0, 0, s * 0.55);
-                    group.add(sleeve);
+                if (occupant.isLocalPlayer) {
+                    localPlayerIdentity.seatId = seat.id;
+                }
+
+                this.updateSeatVisual(seat);
+                updateSanctuaryHudCount();
+                return seat;
+            },
+
+            vacateSeat(seatId) {
+                const seat = this.findSeat(seatId);
+                if (!seat || !seat.occupant) return null;
+                const prev = seat.occupant;
+                seat.occupant = null;
+                prev.seatId = null;
+                if (prev.isLocalPlayer) localPlayerIdentity.seatId = null;
+
+                this.updateSeatVisual(seat);
+                updateSanctuaryHudCount();
+
+                // Process queue to admit next waiting attendee!
+                WaitingQueueManager.processQueue();
+                return prev;
+            },
+
+            vacateByOccupantId(occupantId) {
+                const seat = this.seats.find(s => s.occupant && s.occupant.id === occupantId);
+                if (seat) {
+                    const prev = seat.occupant;
+                    seat.occupant = null;
+                    if (prev) prev.seatId = null;
+                    if (occupantId === localPlayerIdentity.id) localPlayerIdentity.seatId = null;
+                    this.updateSeatVisual(seat);
+                    updateSanctuaryHudCount();
+                    WaitingQueueManager.processQueue();
+                    return seat;
+                }
+                return null;
+            },
+
+            updateSeatVisual(seat) {
+                if (!seat || !seat.rimMesh) return;
+                if (seat.occupant) {
+                    const isPhatTu = seat.occupant.role === 'PHAT_TU';
+                    seat.rimMesh.material.color.setHex(isPhatTu ? 0xf59e0b : 0x38bdf8);
+                    seat.rimMesh.material.emissiveIntensity = 0.45;
+                } else {
+                    seat.rimMesh.material.color.setHex(0xd4af37);
+                    seat.rimMesh.material.emissiveIntensity = 0.15;
+                }
+            }
+        };
+
+        /* -------------------------------------------------------------------------
+           2. WAITING QUEUE MANAGER (HÀNG CHỜ NGOÀI SÂN CHÙA KHI ĐẦY 50 CHỖ)
+        ------------------------------------------------------------------------- */
+        const WaitingQueueManager = {
+            queue: [], // { id, name, role, isLocalPlayer, avatarMesh, labelEl, queueTime }
+
+            enqueue(attendee) {
+                if (this.queue.some(q => q.id === attendee.id)) {
+                    return this.getPosition(attendee.id);
+                }
+                this.queue.push(attendee);
+                attendee.isWaiting = true;
+
+                this.layoutWaitingAvatars();
+                updateSanctuaryHudCount();
+
+                if (attendee.isLocalPlayer) {
+                    updateFloatingQueuePill(true, this.queue.length);
+                }
+                return this.queue.length;
+            },
+
+            dequeue() {
+                const attendee = this.queue.shift();
+                if (attendee) attendee.isWaiting = false;
+                this.layoutWaitingAvatars();
+                updateSanctuaryHudCount();
+
+                if (attendee && attendee.isLocalPlayer) {
+                    updateFloatingQueuePill(false);
+                }
+                return attendee;
+            },
+
+            remove(attendeeId) {
+                const idx = this.queue.findIndex(q => q.id === attendeeId);
+                if (idx !== -1) {
+                    const removed = this.queue.splice(idx, 1)[0];
+                    if (removed) removed.isWaiting = false;
+                    this.layoutWaitingAvatars();
+                    updateSanctuaryHudCount();
+
+                    if (removed && removed.isLocalPlayer) {
+                        updateFloatingQueuePill(false);
+                    }
+                }
+            },
+
+            getPosition(attendeeId) {
+                const idx = this.queue.findIndex(q => q.id === attendeeId);
+                return idx !== -1 ? idx + 1 : -1;
+            },
+
+            processQueue() {
+                if (SanctuarySeatsManager.isFull() || this.queue.length === 0) return;
+
+                const next = this.dequeue();
+                if (!next) return;
+
+                if (next.isLocalPlayer) {
+                    playSingingBowlAudio();
+                    showToast('🔔 Chánh Điện đã có chỗ trống! Đang tự động đưa bạn vào...');
+                    setTimeout(() => {
+                        switchPrimaryMode('hall');
+                    }, 500);
+                } else {
+                    // Assign seat inside Sanctuary
+                    const assigned = SanctuarySeatsManager.assignSeat(next);
+                    if (assigned && next.avatarMesh) {
+                        courtyardWorldGroup.remove(next.avatarMesh);
+                        sanctuaryHallGroup.add(next.avatarMesh);
+                        next.avatarMesh.position.set(assigned.x, 0.16, assigned.z);
+                        next.avatarMesh.visible = (state.primaryMode === 'hall');
+                        if (next.setSitting) next.setSitting(true);
+                    }
+                }
+            },
+
+            layoutWaitingAvatars() {
+                // Standing respectfully outside the temple terrace waiting in line
+                this.queue.forEach((q, idx) => {
+                    if (!q.avatarMesh || q.isLocalPlayer) return;
+                    const side = idx % 2 === 0 ? -1 : 1;
+                    const row = Math.floor(idx / 2);
+                    const wx = side * (2.2 + row * 0.4);
+                    const wz = -0.5 + row * 1.5;
+                    q.avatarMesh.position.set(wx, 0, wz);
+                    q.avatarMesh.rotation.y = Math.PI; // facing toward temple door
+                    q.avatarMesh.visible = (state.primaryMode === 'garden');
+                    if (q.setSitting) q.setSitting(false);
                 });
-                const hands = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), skinMat);
-                hands.scale.set(0.8, 1.4, 0.8);
-                hands.position.set(0, 1.24, 0.34);
-                group.add(hands);
+            }
+        };
 
-                courtyardWorldGroup.add(group);
-
-                // Create floating HTML tag synced with 3D world position
-                const labelEl = document.createElement('div');
-                labelEl.className = 'visitor-label-3d';
-                labelEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-jade-400 shadow-[0_0_6px_#5cc99a] shrink-0"></span><strong>${v.name}</strong><em>"${v.prayer}"</em>`;
-                labelsContainer.appendChild(labelEl);
-
-                visitors3D.push({
-                    group,
-                    labelEl,
-                    baseX: v.x,
-                    baseZ: v.z,
-                    phase: idx * 2.1,
-                    speed: v.speed,
-                    mode: v.mode
-                });
-            });
+        function updateFloatingQueuePill(show, pos) {
+            const pill = document.getElementById('queue-floating-pill');
+            const num = document.getElementById('queue-position-num');
+            if (!pill) return;
+            if (show) {
+                if (num) num.textContent = pos || 1;
+                pill.classList.remove('hidden');
+                pill.classList.add('flex');
+            } else {
+                pill.classList.add('hidden');
+                pill.classList.remove('flex');
+            }
         }
+
+        function cancelWaitingQueue() {
+            WaitingQueueManager.remove(localPlayerIdentity.id);
+            showToast('Đã rời khỏi hàng chờ vào Chánh Điện.');
+        }
+
+        /* -------------------------------------------------------------------------
+           3. MODAL CONTROLLERS (CHÁNH ĐIỆN ĐẦY & SƠ ĐỒ 50 CHỖ NGỒI)
+        ------------------------------------------------------------------------- */
+        function openSanctuaryFullModal() {
+            const modal = document.getElementById('sanctuary-full-modal');
+            if (!modal) return;
+            const posEl = document.getElementById('modal-queue-position');
+            const pos = WaitingQueueManager.queue.length + 1;
+            if (posEl) posEl.textContent = `#${pos}`;
+            state.modalOpen = true;
+            modal.classList.remove('hidden');
+        }
+
+        function closeSanctuaryFullModal() {
+            const modal = document.getElementById('sanctuary-full-modal');
+            if (!modal) return;
+            state.modalOpen = false;
+            modal.classList.add('hidden');
+        }
+
+        function confirmJoinWaitingQueue() {
+            closeSanctuaryFullModal();
+            const pos = WaitingQueueManager.enqueue(localPlayerIdentity);
+            playSingingBowlAudio();
+            showToast(`⏳ Bạn đã vào hàng chờ Chánh Điện (Vị trí #${pos}). Khi có chỗ, hệ thống sẽ tự động mời bạn vào!`);
+        }
+
+        function openSeatMapModal() {
+            const modal = document.getElementById('seat-map-modal');
+            if (!modal) return;
+            renderSeatMapModal();
+            state.modalOpen = true;
+            modal.classList.remove('hidden');
+        }
+
+        function closeSeatMapModal() {
+            const modal = document.getElementById('seat-map-modal');
+            if (!modal) return;
+            state.modalOpen = false;
+            modal.classList.add('hidden');
+        }
+
+        function renderSeatMapModal() {
+            const leftEl = document.getElementById('seatmap-left-wing');
+            const rightEl = document.getElementById('seatmap-right-wing');
+            if (!leftEl || !rightEl) return;
+
+            leftEl.innerHTML = '';
+            rightEl.innerHTML = '';
+
+            let countPhatTu = 0;
+            let countLuKhach = 0;
+
+            SanctuarySeatsManager.seats.forEach(seat => {
+                const box = document.createElement('div');
+                const occ = seat.occupant;
+                const isLocal = occ && occ.id === localPlayerIdentity.id;
+
+                if (occ) {
+                    const isPT = occ.role === 'PHAT_TU';
+                    if (isPT) countPhatTu++; else countLuKhach++;
+                    box.className = `seat-box ${isPT ? 'is-phat-tu' : 'is-lu-khach'} ${isLocal ? 'is-local' : ''}`;
+                    box.innerHTML = `
+                        <div class="font-bold text-[10.5px] opacity-75">#${seat.id}</div>
+                        <div class="truncate font-semibold px-0.5">${occ.name}</div>
+                        <div class="text-[9.5px] opacity-70">${isPT ? '☸️ Phật tử' : '🕊️ Lữ khách'}${isLocal ? ' (Bạn)' : ''}</div>
+                    `;
+                    box.title = `Tọa cụ #${seat.id}: ${occ.name} (${isPT ? 'Phật tử' : 'Lữ khách'})`;
+                    box.onclick = () => {
+                        if (isLocal) {
+                            showToast(`Bạn đang ngồi tại Tọa cụ #${seat.id}.`);
+                        } else {
+                            showToast(`Tọa cụ #${seat.id} đang có ${occ.name} tọa thiền.`);
+                        }
+                    };
+                } else {
+                    box.className = 'seat-box is-vacant';
+                    box.innerHTML = `
+                        <div class="font-bold text-[10.5px] text-amber-300/60">#${seat.id}</div>
+                        <div class="text-[10px] text-amber-200/50">🪷 Trống</div>
+                    `;
+                    box.title = `Tọa cụ #${seat.id} còn trống. Bấm để an tọa!`;
+                    box.onclick = () => {
+                        closeSeatMapModal();
+                        onSanctuaryCushionClicked(seat.id);
+                    };
+                }
+
+                if (seat.id <= 25) {
+                    leftEl.appendChild(box);
+                } else {
+                    rightEl.appendChild(box);
+                }
+            });
+
+            // Update stats
+            const ptEl = document.getElementById('seatmap-stat-phattu');
+            const lkEl = document.getElementById('seatmap-stat-lukhach');
+            const vacEl = document.getElementById('seatmap-stat-vacant');
+            const capEl = document.getElementById('seatmap-capacity');
+            const qCountEl = document.getElementById('seatmap-queue-count');
+            const qListEl = document.getElementById('seatmap-queue-list');
+
+            if (ptEl) ptEl.textContent = countPhatTu;
+            if (lkEl) lkEl.textContent = countLuKhach;
+            if (vacEl) vacEl.textContent = 50 - (countPhatTu + countLuKhach);
+            if (capEl) capEl.textContent = `${countPhatTu + countLuKhach}/50`;
+
+            const qLen = WaitingQueueManager.queue.length;
+            if (qCountEl) qCountEl.textContent = `${qLen} người`;
+            if (qListEl) {
+                if (qLen === 0) {
+                    qListEl.innerHTML = '<div class="text-dim italic text-xs py-1">Hiện không có ai đang chờ bên ngoài.</div>';
+                } else {
+                    qListEl.innerHTML = WaitingQueueManager.queue.map((q, idx) => `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] bg-black/40 border border-amber-500/30 text-gold-200">
+                            <strong>#${idx + 1}</strong>
+                            <span>${q.role === 'PHAT_TU' ? '☸️' : '🕊️'} ${q.name}</span>
+                            ${q.isLocalPlayer ? '<span class="text-amber-300 font-bold">(Bạn)</span>' : ''}
+                        </span>
+                    `).join('');
+                }
+            }
+        }
+
+        function onSanctuaryCushionClicked(seatId) {
+            if (state.primaryMode !== 'hall') {
+                requestEnterSanctuaryHall();
+                return;
+            }
+            const seat = SanctuarySeatsManager.findSeat(seatId);
+            if (!seat) return;
+
+            if (seat.occupant && seat.occupant.id !== localPlayerIdentity.id) {
+                showToast(`🙏 Tọa cụ #${seatId} hiện có ${seat.occupant.name} đang tọa thiền.`);
+                return;
+            }
+
+            // Assign local player to this seat!
+            SanctuarySeatsManager.assignSeat(localPlayerIdentity, seatId);
+            player3D.pos.set(seat.x, 1.05, seat.z);
+            player3D.yaw = 0;
+            player3D.walkDestination = null;
+            toggleKneelingPosture(true);
+            playSingingBowlAudio();
+            showToast(`🙏 Bạn đã chuyển sang an tọa tại Tọa cụ #${seatId}.`);
+        }
+
+        function requestEnterSanctuaryHall() {
+            if (state.primaryMode === 'hall') return;
+
+            // Strict 50-Seat Cap
+            if (SanctuarySeatsManager.isFull()) {
+                openSanctuaryFullModal();
+                return;
+            }
+
+            switchPrimaryMode('hall');
+        }
+
+        /* -------------------------------------------------------------------------
+           4. TEST / SIMULATION TOOLS (KIỂM TRA 50 CHỖ & HÀNG CHỜ)
+        ------------------------------------------------------------------------- */
+        function testSimulateFullSanctuary() {
+            // Fill all remaining vacant seats with simulated devotees & guests
+            const sampleNames = [
+                { role: 'PHAT_TU', name: 'Phật tử Diệu Huệ' },
+                { role: 'PHAT_TU', name: 'Phật tử Minh Tâm' },
+                { role: 'PHAT_TU', name: 'Phật tử Huệ Nhẫn' },
+                { role: 'PHAT_TU', name: 'Phật tử Tịnh Quang' },
+                { role: 'PHAT_TU', name: 'Phật tử Chơn Như' },
+                { role: 'LU_KHACH', name: 'Lữ khách #88' },
+                { role: 'LU_KHACH', name: 'Lữ khách #65' },
+                { role: 'LU_KHACH', name: 'Lữ khách #39' },
+                { role: 'LU_KHACH', name: 'Lữ khách #17' },
+                { role: 'PHAT_TU', name: 'Phật tử Viên Giác' }
+            ];
+
+            let countAdded = 0;
+            SanctuarySeatsManager.seats.forEach((seat, idx) => {
+                if (seat.occupant === null) {
+                    const sample = sampleNames[idx % sampleNames.length];
+                    const attendee = SanghaMultiplayerManager.createDevoteeObject({
+                        id: 'sim_' + (idx + 1),
+                        role: sample.role,
+                        name: `${sample.name} (${seat.id})`,
+                        prayer: 'Nam Mô A Di Đà Phật',
+                        mode: 'hall',
+                        isSitting: true
+                    });
+                    SanctuarySeatsManager.assignSeat(attendee, seat.id);
+                    countAdded++;
+                }
+            });
+
+            renderSeatMapModal();
+            updateSanctuaryHudCount();
+            playSingingBowlAudio();
+            showToast(`🧪 Đã lấp đầy toàn bộ 50/50 chỗ ngồi Chánh Điện. Hãy thử bước vào để kiểm tra hàng chờ!`);
+        }
+
+        function testSimulateOnePersonLeaves() {
+            // Find a non-local occupant and vacate their seat
+            const seat = SanctuarySeatsManager.seats.find(s => s.occupant && !s.occupant.isLocalPlayer);
+            if (seat) {
+                const name = seat.occupant.name;
+                SanctuarySeatsManager.vacateSeat(seat.id);
+                renderSeatMapModal();
+                updateSanctuaryHudCount();
+                playSingingBowlAudio();
+                showToast(`🚪 ${name} đã rời Chánh Điện. Tọa cụ #${seat.id} đã trống để đón người tiếp theo!`);
+            } else {
+                showToast('Chánh Điện hiện không có người mô phỏng để xuất điện.');
+            }
+        }
+
+        function testResetSanctuarySeats() {
+            SanghaMultiplayerManager.seedDefaultDevotees();
+            renderSeatMapModal();
+            updateSanctuaryHudCount();
+            showToast('🔄 Đã đặt lại danh sách đạo tràng và chỗ ngồi tự nhiên.');
+        }
+
+        /* -------------------------------------------------------------------------
+           5. SANGHA MULTIPLAYER MANAGER & REALTIME PRESENCE
+        ------------------------------------------------------------------------- */
+        const SanghaMultiplayerManager = {
+            channel: null,
+            attendees: [], // List of { id, role, name, prayer, mode, mesh, labelEl, phase, speed, baseX, baseZ, isSitting }
+
+            init() {
+                initLocalPlayerIdentity();
+
+                // 1. Setup BroadcastChannel for Instant 0-Latency Multi-Tab Sync
+                try {
+                    this.channel = new BroadcastChannel('chua_tinh_tam_sangha');
+                    this.channel.onmessage = (e) => this.handleChannelMessage(e.data);
+                } catch(err) {
+                    console.log('BroadcastChannel not supported');
+                }
+
+                // 2. Seed Initial Community of Devotees & Guests
+                this.seedDefaultDevotees();
+
+                // 3. Broadcast HELLO to other open tabs
+                this.broadcast({
+                    type: 'HELLO',
+                    player: {
+                        id: localPlayerIdentity.id,
+                        role: localPlayerIdentity.role,
+                        name: localPlayerIdentity.name,
+                        space: state.primaryMode,
+                        pos: { x: player3D.pos.x, y: player3D.pos.y, z: player3D.pos.z },
+                        yaw: player3D.yaw
+                    }
+                });
+
+                // Window unload cleanup
+                window.addEventListener('beforeunload', () => {
+                    this.broadcast({ type: 'LEAVE', id: localPlayerIdentity.id });
+                });
+
+                updateSanctuaryHudCount();
+            },
+
+            broadcast(data) {
+                if (this.channel) {
+                    try { this.channel.postMessage(data); } catch(e){}
+                }
+            },
+
+            handleChannelMessage(data) {
+                if (!data || data.id === localPlayerIdentity.id) return;
+
+                if (data.type === 'HELLO') {
+                    // Another tab joined! Add remote player & send back WELCOME
+                    this.upsertRemotePlayer(data.player);
+                    this.broadcast({
+                        type: 'WELCOME',
+                        player: {
+                            id: localPlayerIdentity.id,
+                            role: localPlayerIdentity.role,
+                            name: localPlayerIdentity.name,
+                            space: state.primaryMode,
+                            pos: { x: player3D.pos.x, y: player3D.pos.y, z: player3D.pos.z },
+                            yaw: player3D.yaw,
+                            seatId: localPlayerIdentity.seatId
+                        }
+                    });
+                } else if (data.type === 'WELCOME') {
+                    this.upsertRemotePlayer(data.player);
+                } else if (data.type === 'MOVE') {
+                    const att = this.attendees.find(a => a.id === data.id);
+                    if (att && att.mesh) {
+                        att.targetPos = new THREE.Vector3(data.x, data.y, data.z);
+                        att.targetYaw = data.yaw;
+                        att.mode = data.space;
+                        if (att.mesh.parent) {
+                            att.mesh.visible = (att.mode === state.primaryMode);
+                        }
+                    }
+                } else if (data.type === 'ROLE_CHANGE') {
+                    const att = this.attendees.find(a => a.id === data.id);
+                    if (att) {
+                        att.role = data.role;
+                        att.name = data.name;
+                        if (att.avatarObj && att.avatarObj.updateRole) {
+                            att.avatarObj.updateRole(data.role);
+                        }
+                        this.updateLabelContent(att);
+                        renderSeatMapModal();
+                    }
+                } else if (data.type === 'LEAVE') {
+                    this.removeAttendee(data.id);
+                    SanctuarySeatsManager.vacateByOccupantId(data.id);
+                    WaitingQueueManager.remove(data.id);
+                    renderSeatMapModal();
+                }
+            },
+
+            upsertRemotePlayer(p) {
+                if (!p || p.id === localPlayerIdentity.id) return;
+                let att = this.attendees.find(a => a.id === p.id);
+                if (!att) {
+                    att = this.createDevoteeObject({
+                        id: p.id,
+                        role: p.role,
+                        name: p.name,
+                        prayer: 'Đạo hữu cùng tu tập',
+                        mode: p.space || 'garden',
+                        isRemote: true
+                    });
+                    if (p.pos) {
+                        att.mesh.position.set(p.pos.x, p.pos.y, p.pos.z);
+                    }
+                    this.attendees.push(att);
+                    showToast(`🙏 ${p.role === 'PHAT_TU' ? 'Phật tử' : 'Lữ khách'} ${p.name} vừa bước vào chùa.`);
+                }
+                if (p.seatId) {
+                    SanctuarySeatsManager.assignSeat(att, p.seatId);
+                }
+            },
+
+            removeAttendee(id) {
+                const idx = this.attendees.findIndex(a => a.id === id);
+                if (idx !== -1) {
+                    const att = this.attendees.splice(idx, 1)[0];
+                    if (att.mesh && att.mesh.parent) att.mesh.parent.remove(att.mesh);
+                    if (att.labelEl && att.labelEl.parentNode) att.labelEl.parentNode.removeChild(att.labelEl);
+                }
+            },
+
+            seedDefaultDevotees() {
+                // Clear any simulated attendees
+                this.attendees.filter(a => a.isSimulated).forEach(a => {
+                    if (a.mesh && a.mesh.parent) a.mesh.parent.remove(a.mesh);
+                    if (a.labelEl && a.labelEl.parentNode) a.labelEl.parentNode.removeChild(a.labelEl);
+                });
+                this.attendees = this.attendees.filter(a => !a.isSimulated);
+
+                // Clear all seats
+                SanctuarySeatsManager.seats.forEach(s => {
+                    s.occupant = null;
+                    SanctuarySeatsManager.updateSeatVisual(s);
+                });
+
+                // Seed 22 devotees and guests seated peacefully in Chánh Điện across the 50 cushions
+                const seatedData = [
+                    { role: 'PHAT_TU', name: 'Phật tử Diệu Âm', prayer: 'Nam Mô A Di Đà Phật' },
+                    { role: 'PHAT_TU', name: 'Phật tử Tâm An', prayer: 'Cầu quốc thái dân an' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #12', prayer: 'Nghe kinh tịnh hóa tâm hồn' },
+                    { role: 'PHAT_TU', name: 'Phật tử Huệ Trí', prayer: 'Nguyện đem công đức này hướng về khắp tất cả' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #24', prayer: 'Cầu bình an mạnh khỏe' },
+                    { role: 'PHAT_TU', name: 'Phật tử Viên Minh', prayer: 'Tâm an vạn sự an' },
+                    { role: 'PHAT_TU', name: 'Cư sĩ Minh Quân', prayer: 'Quy y Tam Bảo' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #45', prayer: 'Vãn cảnh tĩnh tâm' },
+                    { role: 'PHAT_TU', name: 'Phật tử Tịnh Hạnh', prayer: 'Sống từ bi hỷ xả' },
+                    { role: 'PHAT_TU', name: 'Phật tử Phước Duyên', prayer: 'Gia đạo an vui' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #56', prayer: 'Học đạo làm người' },
+                    { role: 'PHAT_TU', name: 'Phật tử Chúc An', prayer: 'Nguyện tiêu ba chướng trừ phiền não' },
+                    { role: 'PHAT_TU', name: 'Phật tử Diệu Hạnh', prayer: 'Bồ Đề tâm kiên cố' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #78', prayer: 'Hương thơm cửa thiền' },
+                    { role: 'PHAT_TU', name: 'Phật tử Bảo Quang', prayer: 'Thân tâm thường an lạc' },
+                    { role: 'PHAT_TU', name: 'Phật tử Giác Ngộ', prayer: 'Trí huệ viên minh' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #91', prayer: 'Cầu công việc thuận lợi' },
+                    { role: 'PHAT_TU', name: 'Phật tử Nguyên Thông', prayer: 'Nam Mô Quan Thế Âm Bồ Tát' },
+                    { role: 'PHAT_TU', name: 'Phật tử Diệu Thiện', prayer: 'Từ bi cứu khổ' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #33', prayer: 'Lòng nhẹ tênh' },
+                    { role: 'PHAT_TU', name: 'Phật tử Vạn Phúc', prayer: 'Phúc lộc thọ khang' },
+                    { role: 'PHAT_TU', name: 'Phật tử Từ Quang', prayer: 'Ánh sáng Phật từ bi' }
+                ];
+
+                seatedData.forEach((d, idx) => {
+                    const seatId = idx + 1;
+                    const att = this.createDevoteeObject({
+                        id: `seated_${idx}`,
+                        role: d.role,
+                        name: d.name,
+                        prayer: d.prayer,
+                        mode: 'hall',
+                        isSitting: true,
+                        isSimulated: true
+                    });
+                    this.attendees.push(att);
+                    SanctuarySeatsManager.assignSeat(att, seatId);
+                });
+
+                // Seed 5 walking devotees outside in the garden
+                const gardenData = [
+                    { role: 'PHAT_TU', name: 'Phật tử Thanh Tâm', prayer: 'Thả hoa đăng cầu an', x: -8, z: 9, speed: 0.35, mode: 'pond' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #08', prayer: 'Chiêm ngưỡng kiến trúc chùa', x: 0, z: 7, speed: 0.4, mode: 'walk' },
+                    { role: 'PHAT_TU', name: 'Phật tử Trí Hải', prayer: 'Thỉnh Đại Hồng Chung', x: 11, z: 7, speed: 0.28, mode: 'bell' },
+                    { role: 'LU_KHACH', name: 'Lữ khách #62', prayer: 'Hít thở không khí thanh tịnh', x: -5, z: 12, speed: 0.3, mode: 'walk' },
+                    { role: 'PHAT_TU', name: 'Phật tử Thiện Duyên', prayer: 'Cầu mong bình an', x: 6, z: 10, speed: 0.32, mode: 'walk' }
+                ];
+
+                gardenData.forEach((d, idx) => {
+                    const att = this.createDevoteeObject({
+                        id: `garden_${idx}`,
+                        role: d.role,
+                        name: d.name,
+                        prayer: d.prayer,
+                        x: d.x,
+                        z: d.z,
+                        speed: d.speed,
+                        walkMode: d.mode,
+                        mode: 'garden',
+                        isSitting: false,
+                        isSimulated: true
+                    });
+                    this.attendees.push(att);
+                });
+            },
+
+            createDevoteeObject(opt) {
+                const isPhatTu = opt.role === 'PHAT_TU';
+                const avatarObj = this.buildAvatarMesh(opt);
+                const mesh = avatarObj.root;
+
+                if (opt.mode === 'hall') {
+                    sanctuaryHallGroup.add(mesh);
+                    mesh.visible = (state.primaryMode === 'hall');
+                } else {
+                    courtyardWorldGroup.add(mesh);
+                    mesh.position.set(opt.x || 0, 0, opt.z || 0);
+                    mesh.visible = (state.primaryMode === 'garden');
+                }
+
+                // Floating HTML label
+                const labelEl = this.createLabelElement(opt);
+
+                const attendee = {
+                    id: opt.id,
+                    role: opt.role,
+                    name: opt.name,
+                    prayer: opt.prayer || '',
+                    mode: opt.mode,
+                    mesh,
+                    avatarObj,
+                    labelEl,
+                    isSitting: !!opt.isSitting,
+                    isSimulated: !!opt.isSimulated,
+                    isRemote: !!opt.isRemote,
+                    phase: Math.random() * 6.28,
+                    speed: opt.speed || 0.3,
+                    baseX: opt.x || 0,
+                    baseZ: opt.z || 0,
+                    walkMode: opt.walkMode || 'walk',
+                    setSitting: (sitting) => {
+                        attendee.isSitting = sitting;
+                    }
+                };
+
+                return attendee;
+            },
+
+            buildAvatarMesh(opt) {
+                const root = new THREE.Group();
+                const isPhatTu = opt.role === 'PHAT_TU';
+                const isSitting = !!opt.isSitting;
+
+                // Color palette
+                const robeColor = isPhatTu ? 0x64748b : 0xc4b59d; // Áo Lam thanh tịnh vs Áo mộc Lữ khách
+                const robeMat = new THREE.MeshStandardMaterial({ color: robeColor, roughness: 0.8, metalness: 0.05 });
+                const skinMat = new THREE.MeshStandardMaterial({ color: 0xf1d4af, roughness: 0.55 });
+                const hairMat = new THREE.MeshStandardMaterial({ color: 0x1f1610, roughness: 0.7 });
+                const malaMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.35, metalness: 0.15 });
+
+                // 1. Robe Body (Áo Tràng)
+                const standingProfile = [
+                    [0, 0], [0.42, 0], [0.40, 0.22], [0.33, 0.72],
+                    [0.28, 1.10], [0.26, 1.28], [0.15, 1.42], [0.08, 1.48], [0, 1.48]
+                ].map(([px, py]) => new THREE.Vector2(px, py));
+
+                const sittingProfile = [
+                    [0, 0], [0.55, 0], [0.52, 0.20], [0.44, 0.45],
+                    [0.34, 0.65], [0.27, 0.82], [0.15, 0.94], [0.08, 0.98], [0, 0.98]
+                ].map(([px, py]) => new THREE.Vector2(px, py));
+
+                const bodyMesh = new THREE.Mesh(new THREE.LatheGeometry(isSitting ? sittingProfile : standingProfile, 22), robeMat);
+                bodyMesh.castShadow = true;
+                bodyMesh.receiveShadow = true;
+                root.add(bodyMesh);
+
+                // Crossed collar
+                const collar = new THREE.Mesh(
+                    new THREE.TorusGeometry(0.18, 0.024, 8, 20, Math.PI * 0.9),
+                    new THREE.MeshStandardMaterial({ color: isPhatTu ? 0x94a3b8 : 0xd6cbb8, roughness: 0.7 })
+                );
+                collar.position.set(0, isSitting ? 0.90 : 1.40, 0.14);
+                collar.rotation.x = Math.PI / 2 + 0.3;
+                root.add(collar);
+
+                // Golden lotus pin for Phật tử
+                let lotusPin = null;
+                if (isPhatTu) {
+                    lotusPin = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.035, 0.035, 0.015, 12),
+                        new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.85, roughness: 0.25, emissive: 0x78350f, emissiveIntensity: 0.3 })
+                    );
+                    lotusPin.rotation.x = Math.PI / 2;
+                    lotusPin.position.set(-0.10, isSitting ? 0.82 : 1.32, 0.24);
+                    root.add(lotusPin);
+                }
+
+                // Head
+                const headY = isSitting ? 1.15 : 1.65;
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.19, 20, 16), skinMat);
+                head.position.y = headY;
+                head.castShadow = true;
+                root.add(head);
+
+                const hair = new THREE.Mesh(new THREE.SphereGeometry(0.202, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.58), hairMat);
+                hair.position.y = headY + 0.01;
+                hair.rotation.x = -0.28;
+                root.add(hair);
+
+                const bun = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 10), hairMat);
+                bun.position.set(0, headY + 0.08, -0.18);
+                root.add(bun);
+
+                // Sleeves & Hands (Joined in Prayer - Chắp tay búp sen)
+                const handsGroup = new THREE.Group();
+                handsGroup.position.set(0, isSitting ? 0.65 : 1.15, 0.22);
+                root.add(handsGroup);
+
+                [-1, 1].forEach(side => {
+                    const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.10, 0.44, 10), robeMat);
+                    sleeve.position.set(side * 0.16, -0.05, -0.02);
+                    sleeve.rotation.set(isSitting ? -0.8 : -1.0, 0, side * 0.52);
+                    handsGroup.add(sleeve);
+                });
+
+                const hands = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 10), skinMat);
+                hands.scale.set(0.75, 1.4, 0.75);
+                hands.position.set(0, isSitting ? 0.0 : 0.06, 0.08);
+                handsGroup.add(hands);
+
+                // Mala beads if Phật tử
+                let malaRing = null;
+                if (isPhatTu) {
+                    malaRing = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.012, 8, 16), malaMat);
+                    malaRing.position.set(0.07, isSitting ? -0.02 : 0.03, 0.06);
+                    malaRing.rotation.x = Math.PI / 2;
+                    handsGroup.add(malaRing);
+                }
+
+                // Seated cross-legged knees if sitting
+                if (isSitting) {
+                    [-1, 1].forEach(side => {
+                        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 12), robeMat);
+                        knee.scale.set(1.4, 0.6, 1.1);
+                        knee.position.set(side * 0.32, 0.08, 0.16);
+                        root.add(knee);
+                    });
+                }
+
+                return {
+                    root,
+                    robeMat,
+                    lotusPin,
+                    malaRing,
+                    updateRole(newRole) {
+                        const isPT = newRole === 'PHAT_TU';
+                        robeMat.color.setHex(isPT ? 0x64748b : 0xc4b59d);
+                        if (lotusPin) lotusPin.visible = isPT;
+                        if (malaRing) malaRing.visible = isPT;
+                    }
+                };
+            },
+
+            createLabelElement(opt) {
+                const el = document.createElement('div');
+                const isPhatTu = opt.role === 'PHAT_TU';
+                el.className = `visitor-label-3d ${isPhatTu ? 'is-phat-tu' : 'is-lu-khach'}`;
+                el.id = `label-devotee-${opt.id}`;
+
+                this.renderLabelHtml(el, opt);
+                const container = document.getElementById('labels-3d-container');
+                if (container) container.appendChild(el);
+                return el;
+            },
+
+            renderLabelHtml(el, opt) {
+                const isPhatTu = opt.role === 'PHAT_TU';
+                const roleBadge = isPhatTu
+                    ? '<span class="badge-role badge-phat-tu"><i class="fa-solid fa-dharmachakra"></i> Phật tử</span>'
+                    : '<span class="badge-role badge-lu-khach"><i class="fa-solid fa-dove"></i> Lữ khách</span>';
+
+                const seatBadge = opt.seatId ? `<span class="seat-badge">Tọa cụ #${opt.seatId}</span>` : '';
+                const prayerQuote = opt.prayer ? `<em>"${opt.prayer}"</em>` : '';
+                el.innerHTML = `${roleBadge}<strong>${opt.name}</strong>${seatBadge}${prayerQuote}`;
+            },
+
+            updateLabelContent(att) {
+                if (!att.labelEl) return;
+                const isPhatTu = att.role === 'PHAT_TU';
+                att.labelEl.className = `visitor-label-3d ${isPhatTu ? 'is-phat-tu' : 'is-lu-khach'}`;
+                this.renderLabelHtml(att.labelEl, att);
+            },
+
+            update(dt, elapsed) {
+                const isGarden = state.primaryMode === 'garden';
+
+                this.attendees.forEach(att => {
+                    const isVisibleInSpace = (att.mode === state.primaryMode);
+                    if (!isVisibleInSpace) {
+                        if (att.labelEl) att.labelEl.style.opacity = '0';
+                        if (att.mesh) att.mesh.visible = false;
+                        return;
+                    }
+
+                    if (att.mesh) att.mesh.visible = true;
+
+                    // Remote player interpolation
+                    if (att.isRemote && att.targetPos) {
+                        att.mesh.position.lerp(att.targetPos, 0.15);
+                        if (att.targetYaw !== undefined) {
+                            att.mesh.rotation.y += (att.targetYaw - att.mesh.rotation.y) * 0.15;
+                        }
+                    } else if (att.isSimulated) {
+                        if (att.isSitting) {
+                            // Gentle breathing motion while meditating on cushion
+                            att.mesh.position.y = 0.16 + Math.sin(elapsed * 1.6 + att.phase) * 0.008;
+                        } else if (isGarden) {
+                            // Walking around the outdoor courtyard
+                            att.phase += dt * att.speed;
+                            if (att.walkMode === 'walk') {
+                                att.mesh.position.z = att.baseZ + Math.sin(att.phase) * 4.0;
+                                att.mesh.rotation.y = Math.cos(att.phase) >= 0 ? 0 : Math.PI;
+                            } else if (att.walkMode === 'pond') {
+                                att.mesh.position.x = att.baseX + Math.cos(att.phase) * 1.5;
+                                att.mesh.rotation.y = Math.PI * 0.5;
+                            } else if (att.walkMode === 'bell') {
+                                att.mesh.position.x = att.baseX + Math.sin(att.phase) * 1.2;
+                                att.mesh.rotation.y = -Math.PI * 0.5;
+                            }
+                        }
+                    }
+
+                    // Project head to 2D screen coordinate for label
+                    if (att.labelEl && att.mesh && camera) {
+                        const headPos = att.mesh.position.clone().add(new THREE.Vector3(0, att.isSitting ? 1.45 : 1.95, 0));
+                        headPos.project(camera);
+
+                        if (headPos.z < 1 && state.visitorLabelsVisible && !state.allFloatingUIHidden) {
+                            const sx = (headPos.x * 0.5 + 0.5) * window.innerWidth;
+                            const sy = (-(headPos.y * 0.5) + 0.5) * window.innerHeight;
+                            att.labelEl.style.left = `${sx}px`;
+                            att.labelEl.style.top = `${sy}px`;
+                            att.labelEl.style.opacity = '1';
+                        } else {
+                            att.labelEl.style.opacity = '0';
+                        }
+                    }
+                });
+
+                // Periodically broadcast local player position to other tabs
+                if (state.viewMode === 'fps' && this.channel) {
+                    if (!this._lastBcast || (elapsed - this._lastBcast > 0.05)) {
+                        this._lastBcast = elapsed;
+                        this.broadcast({
+                            type: 'MOVE',
+                            id: localPlayerIdentity.id,
+                            x: player3D.pos.x,
+                            y: player3D.pos.y,
+                            z: player3D.pos.z,
+                            yaw: player3D.yaw,
+                            space: state.primaryMode
+                        });
+                    }
+                }
+            }
+        };
+
+        function buildVisitors3D() {
+            SanghaMultiplayerManager.init();
+        }
+
 
         /* -------------------------------------------------------------------------
            D. 3D INTERACTIONS, RAYCASTING, CAMERA CONTROLS & ANIMATION LOOP
@@ -5651,11 +7055,15 @@
                 if (intersects.length > 0) {
                     const hit = intersects[0];
                     const hitType = hit.object.userData.interactType;
-                    if (hitType === 'great_bell') {
+                    if (hitType === 'sanctuary_cushion') {
+                        const seatId = hit.object.userData.seatId;
+                        if (seatId) onSanctuaryCushionClicked(seatId);
+                        return;
+                    } else if (hitType === 'great_bell') {
                         strikeGreatBell3D();
                         return;
                     } else if (hitType === 'enter_hall') {
-                        switchPrimaryMode('hall');
+                        requestEnterSanctuaryHall();
                         return;
                     } else if (hitType === 'wooden_fish') {
                         trigger3DWoodenFish(true);
@@ -5840,10 +7248,15 @@
                     player3D.pos.z *= scale;
                 }
 
-                // If walking right into the glowing Chánh Điện doorway, automatically enter the Sanctuary Hall!
+                // If walking right into the glowing Chánh Điện doorway, check 50 seats capacity & enter!
                 if (Math.abs(player3D.pos.x) < 2.8 && player3D.pos.z < -5.8 && player3D.pos.z > -8.5) {
                     player3D.walkDestination = null;
-                    switchPrimaryMode('hall');
+                    if (SanctuarySeatsManager.isFull()) {
+                        player3D.pos.z = -5.7; // Stop before door
+                        openSanctuaryFullModal();
+                    } else {
+                        requestEnterSanctuaryHall();
+                    }
                     return;
                 }
 
@@ -5916,7 +7329,7 @@
                 performPilgrimBow();
                 strikeGreatBell3D();
             } else if (state.proximityTarget === 'enter_hall') {
-                switchPrimaryMode('hall');
+                requestEnterSanctuaryHall();
             } else if (state.proximityTarget === 'lotus_pond') {
                 releaseLotusLantern3D();
             } else if (state.proximityTarget === 'altar_incense') {
@@ -6357,31 +7770,13 @@
                 petalParticlesGeo.attributes.position.needsUpdate = true;
             }
 
-            // 9. Update 3D Multiplayer Visitors & Project Floating HTML Prayer Tags
-            visitors3D.forEach(v => {
-                v.phase += dt * v.speed;
-                if (v.mode === 'walk') {
-                    v.group.position.z = v.baseZ + Math.sin(v.phase) * 4.5;
-                } else {
-                    v.group.position.x = v.baseX + Math.cos(v.phase) * 1.2;
-                }
+            // 9. Update Sangha Multiplayer Avatars & Project Floating HTML Prayer Tags
+            SanghaMultiplayerManager.update(dt, elapsed);
 
-                // Project 3D head coordinate to 2D screen space
-                const headPos = v.group.position.clone().add(new THREE.Vector3(0, 2.2, 0));
-                headPos.project(camera);
-
-                if (headPos.z < 1 && state.primaryMode === 'garden' && state.visitorLabelsVisible && !state.allFloatingUIHidden) {
-                    const sx = (headPos.x * 0.5 + 0.5) * window.innerWidth;
-                    const sy = (-(headPos.y * 0.5) + 0.5) * window.innerHeight;
-                    v.labelEl.style.left = `${sx}px`;
-                    v.labelEl.style.top = `${sy}px`;
-                    v.labelEl.style.opacity = '1';
-                } else {
-                    v.labelEl.style.opacity = '0';
-                }
-            });
-
-            // 10. Ambient shimmer: lantern flicker, twinkling stars & drifting dust motes
+            // 10. Ambient shimmer: halo pulsation, lantern flicker, twinkling stars & drifting dust motes
+            if (buddhaHaloPointLight && sanctuaryHallGroup.visible) {
+                buddhaHaloPointLight.intensity = 2.2 + 0.35 * Math.sin(elapsed * 2.5);
+            }
             lanternPointLights.forEach((l, i) => {
                 const base = l.userData.baseIntensity || 0.75;
                 l.intensity = base * (0.88 + 0.12 * Math.sin(elapsed * 3.1 + i * 1.7) * Math.sin(elapsed * 1.3 + i));
@@ -6556,6 +7951,9 @@
                     if (state.isChanting) stopChantingSession();
                     toggleKneelingPosture(false);
 
+                    // Vacate local player seat in Sanctuary so it's available for others
+                    SanctuarySeatsManager.vacateByOccupantId(localPlayerIdentity.id);
+
                     // Toggle 3D Worlds: Show Outdoor Courtyard, Hide Indoor Hall
                     courtyardWorldGroup.visible = true;
                     sanctuaryHallGroup.visible = false;
@@ -6603,7 +8001,22 @@
 
                     tabHall.classList.add('is-active');
                     tabGarden.classList.remove('is-active');
-                    moveCameraToPreset('hall_wide');
+
+                    // Assign an orderly seat to local player in Sanctuary Hall!
+                    let mySeat = SanctuarySeatsManager.findSeatByOccupantId(localPlayerIdentity.id);
+                    if (!mySeat) {
+                        mySeat = SanctuarySeatsManager.assignSeat(localPlayerIdentity);
+                    }
+                    if (mySeat) {
+                        player3D.pos.set(mySeat.x, 1.05, mySeat.z);
+                        player3D.yaw = 0;
+                        player3D.isKneeling = true;
+                        toggleKneelingPosture(true);
+                        showToast(`🏛️ Chào mừng bạn vào Chánh Điện. Bạn đã an tọa tại Tọa cụ #${mySeat.id}.`);
+                    } else {
+                        moveCameraToPreset('hall_wide');
+                    }
+
                     updateSpaceBadgeText();
                     syncBottomHudVisibility();
 
@@ -7096,6 +8509,37 @@
 
         // Reflect the member everywhere: header button, welcome greeting, incense name
         function applyMemberProfile() {
+            if (memberProfile) {
+                localPlayerIdentity.role = 'PHAT_TU';
+                localPlayerIdentity.name = memberProfile.dharmaName || memberProfile.fullName;
+                localPlayerIdentity.dharmaName = memberProfile.dharmaName || '';
+            } else {
+                localPlayerIdentity.role = 'LU_KHACH';
+                let savedGuest = null;
+                try { savedGuest = localStorage.getItem('tinhTam.guestName'); } catch(e){}
+                localPlayerIdentity.name = savedGuest || ('Lữ khách #' + localPlayerIdentity.guestId);
+            }
+            updateUserIdentityUI();
+            updateFirstPersonHandsRole();
+
+            // If user has a seat, update occupant data
+            const mySeat = SanctuarySeatsManager.findSeatByOccupantId(localPlayerIdentity.id);
+            if (mySeat) {
+                mySeat.occupant.role = localPlayerIdentity.role;
+                mySeat.occupant.name = localPlayerIdentity.name;
+                SanctuarySeatsManager.updateSeatVisual(mySeat);
+            }
+
+            // Broadcast role change to other tabs
+            if (SanghaMultiplayerManager) {
+                SanghaMultiplayerManager.broadcast({
+                    type: 'ROLE_CHANGE',
+                    id: localPlayerIdentity.id,
+                    role: localPlayerIdentity.role,
+                    name: localPlayerIdentity.name
+                });
+            }
+
             const label = document.getElementById('text-member');
             if (label) label.textContent = memberProfile ? 'Thẻ Phật tử' : 'Đăng ký Phật tử';
             const btn = document.getElementById('btn-member');
