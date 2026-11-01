@@ -5,7 +5,7 @@ Không gian chùa 3D trên trình duyệt: dạo bước sân chùa, thỉnh Đ�
 ## Tính năng mới nổi bật
 
 1. **Đồ hoạ tinh xảo (Cinematic 3D Fidelity)**:
-   - Tích hợp chuẩn **ACES Filmic Tone Mapping** và không gian màu **sRGB** cho hình ảnh chân thực, chiều sâu và độ tương phản ấm áp chốn thiền môn.
+   - Tích hợp chuẩn **ACES Filmic Tone Mapping** cho hình ảnh chân thực, chiều sâu và độ tương phản ấm áp chốn thiền môn.
    - Hệ thống bóng đổ mềm mại (**PCFSoftShadowMap**), luồng ánh sáng thiêng liêng (**volumetric light beam**) từ giếng trời chiếu lên tượng Phật Thích Ca Mâu Ni.
    - Hào quang đa tầng luân xa tỏa sáng rực rỡ sau lưng Đức Phật, ngọn nến và đèn dầu bập bùng chân thực, sóng nước lung linh nơi Hồ Liên Hoa.
 
@@ -22,7 +22,7 @@ Không gian chùa 3D trên trình duyệt: dạo bước sân chùa, thỉnh Đ�
    - Phật tử và Lữ khách được sắp xếp an tọa cùng nhau thiền định, quỳ lễ hướng về tượng Phật.
    - **Giới hạn tối đa 50 chỗ**: Khi đủ 50 người, cửa Chánh Điện sẽ giữ lại và đưa người đến sau vào **Hàng chờ ngoài sân chùa**.
    - Người chờ có thể tự do đi dạo sân chùa, nghe chuông, thả hoa đăng. Ngay khi có người xuất điện ra sân, hệ thống sẽ tự động thỉnh chuông và mời người tiếp theo vào vị trí tọa cụ.
-   - Bảng **"Sơ Đồ 50 Chỗ Ngồi & Hàng Chờ"** trực quan cùng các nút thử nghiệm mô phỏng (lấp đầy 50 chỗ, 1 người ra sân, đặt lại tự nhiên).
+   - Bảng **"Sơ Đồ 50 Chỗ Ngồi & Hàng Chờ"** trực quan: xem ai đang ngồi ở tọa cụ nào, bấm vào chỗ trống để an tọa.
 
 ## Hướng dẫn sử dụng
 

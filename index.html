@@ -1271,10 +1271,13 @@
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.12);
             display: flex;
-            flex-col;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 52px;
+        }
+        .seat-box > * {
+            max-width: 100%;
         }
         .seat-box:hover {
             transform: translateY(-2px);
@@ -1303,7 +1306,6 @@
         .seat-box.is-local {
             box-shadow: 0 0 14px rgba(250, 204, 21, 0.6);
             border-color: #facc15 !important;
-            ring: 1px solid #facc15;
         }
 
     </style>
@@ -2066,25 +2068,6 @@
                     </div>
                     <div id="seatmap-queue-list" class="flex flex-wrap gap-2 text-xs text-gold-100/80">
                         <div class="text-dim italic text-xs py-1">Hiện không có ai đang chờ bên ngoài.</div>
-                    </div>
-                </div>
-
-                <!-- Test / Simulation Controls for User Testing -->
-                <div class="p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <span class="text-amber-200 font-medium flex items-center gap-1.5">
-                        <i class="fa-solid fa-flask text-amber-400"></i>
-                        <span>Công cụ thử nghiệm 50 chỗ & Hàng chờ:</span>
-                    </span>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="testSimulateFullSanctuary()" class="btn btn-ghost !h-8 !px-3 text-[11px] !border-amber-500/30 hover:!border-amber-400">
-                            🧪 Lấp đầy 50 chỗ (Kiểm tra hàng chờ)
-                        </button>
-                        <button onclick="testSimulateOnePersonLeaves()" class="btn btn-ghost !h-8 !px-3 text-[11px] !border-amber-500/30 hover:!border-amber-400">
-                            🚪 1 người ra sân (Nhận người chờ)
-                        </button>
-                        <button onclick="testResetSanctuarySeats()" class="btn btn-ghost !h-8 !px-3 text-[11px] !border-amber-500/30 hover:!border-amber-400">
-                            🔄 Đặt lại bình thường
-                        </button>
                     </div>
                 </div>
             </div>
@@ -3141,7 +3124,6 @@
             // Enhanced visual fidelity: ACES Filmic Tone Mapping & sRGB color space
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1.12;
-            renderer.outputEncoding = THREE.sRGBEncoding;
             container.appendChild(renderer.domElement);
 
             raycaster = new THREE.Raycaster();
@@ -3171,10 +3153,12 @@
             buildCourtyardWallAndGate3D();
             buildDistantHills3D();
             buildBonsaiPots3D();
-            buildVisitors3D();
 
             // 4. SPACE 2: Build Completely Separate Enclosed Indoor Sanctuary Hall (Phòng Sảnh Nội Điện 3D)
             buildSeparateIndoorSanctuaryHall3D();
+
+            // Visitors are seeded after the hall so its 50 cushions exist to seat them
+            buildVisitors3D();
 
             // 5. Bind Mouse, Touch & Keyboard Controls
             setup3DEventListeners();
@@ -5834,7 +5818,7 @@
                 btn.innerHTML = `
                     <i class="fa-solid fa-dharmachakra text-amber-400 text-[13px]"></i>
                     <span class="font-bold text-amber-300">Phật tử</span>
-                    <span class="text-gold-100 font-medium truncate max-w-[110px] sm:max-w-[140px]">${localPlayerIdentity.name}</span>
+                    <span class="text-gold-100 font-medium truncate max-w-[110px] sm:max-w-[140px]">${escapeHtml(localPlayerIdentity.name)}</span>
                 `;
             } else {
                 btn.className = 'btn glass-thin h-9 px-2.5 sm:px-3 text-[12px] flex items-center gap-1.5 !border-slate-500/35 text-slate-200 hover:!border-amber-400/60 shrink-0';
@@ -5842,7 +5826,7 @@
                 btn.innerHTML = `
                     <i class="fa-solid fa-dove text-sky-400 text-[12px]"></i>
                     <span class="text-slate-300">Lữ khách</span>
-                    <span class="text-slate-200 truncate max-w-[90px] sm:max-w-[120px] font-medium">${localPlayerIdentity.name}</span>
+                    <span class="text-slate-200 truncate max-w-[90px] sm:max-w-[120px] font-medium">${escapeHtml(localPlayerIdentity.name)}</span>
                     <span class="hidden sm:inline-flex text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/35 ml-0.5">Đăng ký</span>
                 `;
             }
@@ -6080,12 +6064,13 @@
                 seat.occupant = occupant;
                 occupant.seatId = seat.id;
 
-                if (occupant.avatarMesh) {
-                    occupant.avatarMesh.position.set(seat.x, 0.16, seat.z);
-                    occupant.avatarMesh.rotation.y = 0; // facing Buddha
-                    occupant.avatarMesh.visible = (state.primaryMode === 'hall');
+                if (occupant.mesh) {
+                    occupant.mesh.position.set(seat.x, 0.16, seat.z);
+                    occupant.mesh.rotation.y = Math.PI; // avatars face +Z, so turn them toward the Buddha at -Z
+                    occupant.mesh.visible = (state.primaryMode === 'hall');
                     if (occupant.setSitting) occupant.setSitting(true);
                 }
+                if (occupant.labelEl) SanghaMultiplayerManager.updateLabelContent(occupant);
 
                 if (occupant.isLocalPlayer) {
                     localPlayerIdentity.seatId = seat.id;
@@ -6208,12 +6193,9 @@
                 } else {
                     // Assign seat inside Sanctuary
                     const assigned = SanctuarySeatsManager.assignSeat(next);
-                    if (assigned && next.avatarMesh) {
-                        courtyardWorldGroup.remove(next.avatarMesh);
-                        sanctuaryHallGroup.add(next.avatarMesh);
-                        next.avatarMesh.position.set(assigned.x, 0.16, assigned.z);
-                        next.avatarMesh.visible = (state.primaryMode === 'hall');
-                        if (next.setSitting) next.setSitting(true);
+                    if (assigned && next.mesh) {
+                        SanghaMultiplayerManager.moveToSpace(next, 'hall');
+                        next.mesh.visible = (state.primaryMode === 'hall');
                     }
                 }
             },
@@ -6221,14 +6203,14 @@
             layoutWaitingAvatars() {
                 // Standing respectfully outside the temple terrace waiting in line
                 this.queue.forEach((q, idx) => {
-                    if (!q.avatarMesh || q.isLocalPlayer) return;
+                    if (!q.mesh || q.isLocalPlayer) return;
                     const side = idx % 2 === 0 ? -1 : 1;
                     const row = Math.floor(idx / 2);
                     const wx = side * (2.2 + row * 0.4);
                     const wz = -0.5 + row * 1.5;
-                    q.avatarMesh.position.set(wx, 0, wz);
-                    q.avatarMesh.rotation.y = Math.PI; // facing toward temple door
-                    q.avatarMesh.visible = (state.primaryMode === 'garden');
+                    q.mesh.position.set(wx, 0, wz);
+                    q.mesh.rotation.y = Math.PI; // facing toward temple door
+                    q.mesh.visible = (state.primaryMode === 'garden');
                     if (q.setSitting) q.setSitting(false);
                 });
             }
@@ -6317,7 +6299,7 @@
                     box.className = `seat-box ${isPT ? 'is-phat-tu' : 'is-lu-khach'} ${isLocal ? 'is-local' : ''}`;
                     box.innerHTML = `
                         <div class="font-bold text-[10.5px] opacity-75">#${seat.id}</div>
-                        <div class="truncate font-semibold px-0.5">${occ.name}</div>
+                        <div class="truncate font-semibold px-0.5">${escapeHtml(occ.name)}</div>
                         <div class="text-[9.5px] opacity-70">${isPT ? '☸️ Phật tử' : '🕊️ Lữ khách'}${isLocal ? ' (Bạn)' : ''}</div>
                     `;
                     box.title = `Tọa cụ #${seat.id}: ${occ.name} (${isPT ? 'Phật tử' : 'Lữ khách'})`;
@@ -6370,7 +6352,7 @@
                     qListEl.innerHTML = WaitingQueueManager.queue.map((q, idx) => `
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] bg-black/40 border border-amber-500/30 text-gold-200">
                             <strong>#${idx + 1}</strong>
-                            <span>${q.role === 'PHAT_TU' ? '☸️' : '🕊️'} ${q.name}</span>
+                            <span>${q.role === 'PHAT_TU' ? '☸️' : '🕊️'} ${escapeHtml(q.name)}</span>
                             ${q.isLocalPlayer ? '<span class="text-amber-300 font-bold">(Bạn)</span>' : ''}
                         </span>
                     `).join('');
@@ -6414,70 +6396,7 @@
         }
 
         /* -------------------------------------------------------------------------
-           4. TEST / SIMULATION TOOLS (KIỂM TRA 50 CHỖ & HÀNG CHỜ)
-        ------------------------------------------------------------------------- */
-        function testSimulateFullSanctuary() {
-            // Fill all remaining vacant seats with simulated devotees & guests
-            const sampleNames = [
-                { role: 'PHAT_TU', name: 'Phật tử Diệu Huệ' },
-                { role: 'PHAT_TU', name: 'Phật tử Minh Tâm' },
-                { role: 'PHAT_TU', name: 'Phật tử Huệ Nhẫn' },
-                { role: 'PHAT_TU', name: 'Phật tử Tịnh Quang' },
-                { role: 'PHAT_TU', name: 'Phật tử Chơn Như' },
-                { role: 'LU_KHACH', name: 'Lữ khách #88' },
-                { role: 'LU_KHACH', name: 'Lữ khách #65' },
-                { role: 'LU_KHACH', name: 'Lữ khách #39' },
-                { role: 'LU_KHACH', name: 'Lữ khách #17' },
-                { role: 'PHAT_TU', name: 'Phật tử Viên Giác' }
-            ];
-
-            let countAdded = 0;
-            SanctuarySeatsManager.seats.forEach((seat, idx) => {
-                if (seat.occupant === null) {
-                    const sample = sampleNames[idx % sampleNames.length];
-                    const attendee = SanghaMultiplayerManager.createDevoteeObject({
-                        id: 'sim_' + (idx + 1),
-                        role: sample.role,
-                        name: `${sample.name} (${seat.id})`,
-                        prayer: 'Nam Mô A Di Đà Phật',
-                        mode: 'hall',
-                        isSitting: true
-                    });
-                    SanctuarySeatsManager.assignSeat(attendee, seat.id);
-                    countAdded++;
-                }
-            });
-
-            renderSeatMapModal();
-            updateSanctuaryHudCount();
-            playSingingBowlAudio();
-            showToast(`🧪 Đã lấp đầy toàn bộ 50/50 chỗ ngồi Chánh Điện. Hãy thử bước vào để kiểm tra hàng chờ!`);
-        }
-
-        function testSimulateOnePersonLeaves() {
-            // Find a non-local occupant and vacate their seat
-            const seat = SanctuarySeatsManager.seats.find(s => s.occupant && !s.occupant.isLocalPlayer);
-            if (seat) {
-                const name = seat.occupant.name;
-                SanctuarySeatsManager.vacateSeat(seat.id);
-                renderSeatMapModal();
-                updateSanctuaryHudCount();
-                playSingingBowlAudio();
-                showToast(`🚪 ${name} đã rời Chánh Điện. Tọa cụ #${seat.id} đã trống để đón người tiếp theo!`);
-            } else {
-                showToast('Chánh Điện hiện không có người mô phỏng để xuất điện.');
-            }
-        }
-
-        function testResetSanctuarySeats() {
-            SanghaMultiplayerManager.seedDefaultDevotees();
-            renderSeatMapModal();
-            updateSanctuaryHudCount();
-            showToast('🔄 Đã đặt lại danh sách đạo tràng và chỗ ngồi tự nhiên.');
-        }
-
-        /* -------------------------------------------------------------------------
-           5. SANGHA MULTIPLAYER MANAGER & REALTIME PRESENCE
+           4. SANGHA MULTIPLAYER MANAGER & REALTIME PRESENCE
         ------------------------------------------------------------------------- */
         const SanghaMultiplayerManager = {
             channel: null,
@@ -6547,12 +6466,14 @@
                 } else if (data.type === 'MOVE') {
                     const att = this.attendees.find(a => a.id === data.id);
                     if (att && att.mesh) {
-                        att.targetPos = new THREE.Vector3(data.x, data.y, data.z);
-                        att.targetYaw = data.yaw;
-                        att.mode = data.space;
-                        if (att.mesh.parent) {
-                            att.mesh.visible = (att.mode === state.primaryMode);
+                        // Broadcast y is the remote camera's eye height; avatars stand on the floor
+                        att.targetPos = new THREE.Vector3(data.x, 0, data.z);
+                        att.targetYaw = data.yaw + Math.PI; // yaw 0 looks toward -Z, avatar models face +Z
+                        if (att.mode !== data.space) {
+                            this.moveToSpace(att, data.space);
+                            att.mesh.position.copy(att.targetPos); // jump, don't glide between spaces
                         }
+                        att.mesh.visible = (att.mode === state.primaryMode);
                     }
                 } else if (data.type === 'ROLE_CHANGE') {
                     const att = this.attendees.find(a => a.id === data.id);
@@ -6586,7 +6507,7 @@
                         isRemote: true
                     });
                     if (p.pos) {
-                        att.mesh.position.set(p.pos.x, p.pos.y, p.pos.z);
+                        att.mesh.position.set(p.pos.x, 0, p.pos.z);
                     }
                     this.attendees.push(att);
                     showToast(`🙏 ${p.role === 'PHAT_TU' ? 'Phật tử' : 'Lữ khách'} ${p.name} vừa bước vào chùa.`);
@@ -6594,6 +6515,13 @@
                 if (p.seatId) {
                     SanctuarySeatsManager.assignSeat(att, p.seatId);
                 }
+            },
+
+            // Each space is its own group and the inactive one is hidden, so a mesh must live in its attendee's space
+            moveToSpace(att, space) {
+                att.mode = space;
+                const group = space === 'hall' ? sanctuaryHallGroup : courtyardWorldGroup;
+                if (att.mesh && att.mesh.parent !== group) group.add(att.mesh);
             },
 
             removeAttendee(id) {
@@ -6863,8 +6791,8 @@
                     : '<span class="badge-role badge-lu-khach"><i class="fa-solid fa-dove"></i> Lữ khách</span>';
 
                 const seatBadge = opt.seatId ? `<span class="seat-badge">Tọa cụ #${opt.seatId}</span>` : '';
-                const prayerQuote = opt.prayer ? `<em>"${opt.prayer}"</em>` : '';
-                el.innerHTML = `${roleBadge}<strong>${opt.name}</strong>${seatBadge}${prayerQuote}`;
+                const prayerQuote = opt.prayer ? `<em>"${escapeHtml(opt.prayer)}"</em>` : '';
+                el.innerHTML = `${roleBadge}<strong>${escapeHtml(opt.name)}</strong>${seatBadge}${prayerQuote}`;
             },
 
             updateLabelContent(att) {
@@ -7087,11 +7015,13 @@
 
             // Keyboard Navigation (WASD / Arrow keys) + Pilgrim Shortcuts (E, C, F, L, Space, Enter)
             window.addEventListener('keydown', (e) => {
-                // The registration dialog owns the keyboard while open
+                // An open dialog owns the keyboard
                 if (state.modalOpen) {
                     if (e.code === 'Escape') {
                         e.preventDefault();
                         closeRegistration();
+                        closeSeatMapModal();
+                        closeSanctuaryFullModal();
                     }
                     return;
                 }
@@ -7154,7 +7084,7 @@
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
             });
         }
 
@@ -7233,7 +7163,7 @@
                 if (clickTargetMarker) clickTargetMarker.visible = false;
                 performPilgrimBow();
                 showToast('🧎 Bạn đang quỳ trên chiếu Bồ Đoàn trước ngôi Tam Bảo.');
-            } else {
+            } else if (state.primaryMode === 'hall') {
                 showToast('🚶 Bạn đã đứng dậy để tiếp tục đi dạo trong Chánh Điện.');
             }
         }
