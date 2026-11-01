@@ -14,7 +14,9 @@ Không gian chùa 3D trên trình duyệt: dạo bước sân chùa, thỉnh Đ�
    - **Lữ khách** (chưa ghi danh): Hiện huy hiệu thanh nhã `🕊️ Lữ khách #[Mã số]`, trang phục lữ hành mộc mạc. Bất cứ lúc nào cũng có thể nhấn *"Đăng ký Phật tử"* để nhận Thẻ Phật tử và chuyển đổi phục trang, danh hiệu tức thì.
 
 3. **Hiện diện đa người dùng & Tự do di chuyển (Multiplayer Sangha)**:
-   - Đồng bộ thời gian thực qua `BroadcastChannel`: mở nhiều tab hoặc cửa sổ sẽ lập tức thấy nhau di chuyển, xá lễ, đổi tư thế và hiển thị bảng tên 3D trên đầu.
+   - Đồng bộ thời gian thực qua **Supabase Realtime**: người vào chùa từ các máy khác nhau thấy nhau di chuyển, quỳ/đứng, ngồi tọa cụ nào, kèm bảng tên 3D trên đầu. Sơ đồ 50 chỗ và hàng chờ tính theo người thật; người mẫu tự nhường tọa cụ khi cần.
+   - Cấu hình: điền `SUPABASE_URL` và `SUPABASE_PUBLISHABLE_KEY` (khoá công khai, **không** dùng khoá secret/service_role) trong `index.html`. Không cần tạo bảng dữ liệu nào.
+   - Khi chưa cấu hình hoặc Supabase không kết nối được, trang tự quay về `BroadcastChannel`: chỉ các tab trong cùng một trình duyệt thấy nhau.
    - Đạo tràng đồng tu luôn ấm cúng với các Phật tử và Lữ khách thập phương dạo bước sân chùa, ngắm hoa sen, thỉnh chuông.
 
 4. **Chánh Điện 50 Chỗ Ngồi & Hàng Chờ Bên Ngoài**:

@@ -20,6 +20,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Three.js r128 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Supabase Realtime: visitors on different devices see each other -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1683,7 +1685,7 @@
                     <i class="fa-solid fa-spa"></i>
                     <span>Thả hoa đăng</span>
                 </button>
-                <button onclick="switchPrimaryMode('hall')" class="btn btn-ghost h-11 px-4 text-[13px]">
+                <button onclick="requestEnterSanctuaryHall()" class="btn btn-ghost h-11 px-4 text-[13px]">
                     <span>Vào Chánh Điện</span>
                     <i class="fa-solid fa-arrow-right text-[11px] text-gold-300"></i>
                 </button>
@@ -5783,6 +5785,8 @@
             dharmaName: '',
             guestId: Math.floor(10 + Math.random() * 89),
             seatId: null,
+            seatAt: null,     // when this cushion was claimed; the earlier claim wins a contested cushion
+            queuedAt: null,   // when we joined the courtyard line, or null when not waiting
             isLocalPlayer: true
         };
 
@@ -5872,7 +5876,7 @@
 
             const btn = document.getElementById('btn-sanctuary-seats');
             if (btn) {
-                if (occupied >= 50) {
+                if (SanctuarySeatsManager.isFull()) {
                     btn.classList.add('!border-amber-500', 'bg-amber-950/30');
                 } else {
                     btn.classList.remove('!border-amber-500', 'bg-amber-950/30');
@@ -6027,7 +6031,7 @@
                     group,
                     baseMesh: base,
                     rimMesh: rim,
-                    occupant: null // { id, name, role, isLocalPlayer, avatarMesh, labelEl, prayer }
+                    occupant: null // local identity, remote visitor or sample attendee: { id, name, role, ... }
                 });
             },
 
@@ -6035,8 +6039,22 @@
                 return this.seats.filter(s => s.occupant !== null).length;
             },
 
+            // Real people only: sample devotees give up their cushions, so they never count toward the cap
+            getRealSeatedCount() {
+                return this.seats.filter(s => s.occupant && !s.occupant.isSimulated).length;
+            },
+
             isFull() {
-                return this.getOccupiedCount() >= this.MAX_SEATS;
+                return this.getRealSeatedCount() >= this.MAX_SEATS;
+            },
+
+            // Free cushions (empty or held by a sample) must outnumber the people queued ahead of this person
+            hasRoomFor(personId) {
+                if (this.findSeatByOccupantId(personId)) return true;
+                const free = this.MAX_SEATS - this.getRealSeatedCount();
+                const pos = WaitingQueueManager.getPosition(personId);
+                const ahead = pos > 0 ? pos - 1 : WaitingQueueManager.queue.length;
+                return free > ahead;
             },
 
             findSeat(id) {
@@ -6047,69 +6065,42 @@
                 return this.seats.find(s => s.occupant && s.occupant.id === occupantId) || null;
             },
 
-            findFirstAvailableSeat() {
-                return this.seats.find(s => s.occupant === null) || null;
+            // Prefer an empty cushion; only when none is left does a sample devotee give theirs up
+            pickSeatFor(preferredId) {
+                const preferred = preferredId ? this.findSeat(preferredId) : null;
+                if (preferred && !preferred.occupant) return preferred.id;
+                const empty = this.seats.find(s => !s.occupant);
+                if (empty) return empty.id;
+                const sampleHeld = this.seats.find(s => s.occupant.isSimulated);
+                return sampleHeld ? sampleHeld.id : null;
             },
 
-            assignSeat(occupant, preferredId) {
-                let seat = preferredId ? this.findSeat(preferredId) : null;
-                if (!seat || seat.occupant !== null) {
-                    seat = this.findFirstAvailableSeat();
-                }
-                if (!seat) return null; // Hall is full
-
-                // If occupant was on another seat, vacate previous
-                this.vacateByOccupantId(occupant.id);
-
-                seat.occupant = occupant;
-                occupant.seatId = seat.id;
-
-                if (occupant.mesh) {
-                    occupant.mesh.position.set(seat.x, 0.16, seat.z);
-                    occupant.mesh.rotation.y = Math.PI; // avatars face +Z, so turn them toward the Buddha at -Z
-                    occupant.mesh.visible = (state.primaryMode === 'hall');
-                    if (occupant.setSitting) occupant.setSitting(true);
-                }
-                if (occupant.labelEl) SanghaMultiplayerManager.updateLabelContent(occupant);
-
-                if (occupant.isLocalPlayer) {
-                    localPlayerIdentity.seatId = seat.id;
-                }
-
-                this.updateSeatVisual(seat);
-                updateSanctuaryHudCount();
-                return seat;
-            },
-
-            vacateSeat(seatId) {
-                const seat = this.findSeat(seatId);
-                if (!seat || !seat.occupant) return null;
-                const prev = seat.occupant;
-                seat.occupant = null;
-                prev.seatId = null;
-                if (prev.isLocalPlayer) localPlayerIdentity.seatId = null;
-
-                this.updateSeatVisual(seat);
-                updateSanctuaryHudCount();
-
-                // Process queue to admit next waiting attendee!
-                WaitingQueueManager.processQueue();
-                return prev;
-            },
-
-            vacateByOccupantId(occupantId) {
-                const seat = this.seats.find(s => s.occupant && s.occupant.id === occupantId);
-                if (seat) {
-                    const prev = seat.occupant;
-                    seat.occupant = null;
-                    if (prev) prev.seatId = null;
-                    if (occupantId === localPlayerIdentity.id) localPlayerIdentity.seatId = null;
-                    this.updateSeatVisual(seat);
-                    updateSanctuaryHudCount();
-                    WaitingQueueManager.processQueue();
-                    return seat;
-                }
-                return null;
+            // Rebuild occupancy from every real person's claimed cushion. Every browser runs this on the same
+            // shared state, so they all agree: the earlier claim keeps a contested cushion. Returns the losers.
+            rebuild(claims, samples) {
+                this.seats.forEach(s => { s.occupant = null; });
+                claims.sort((a, b) => (a.at - b.at) || (a.person.id < b.person.id ? -1 : 1));
+                const losers = [];
+                claims.forEach(c => {
+                    const seat = this.findSeat(c.seatId);
+                    if (seat && !seat.occupant) {
+                        seat.occupant = c.person;
+                    } else {
+                        losers.push(c.person);
+                    }
+                });
+                samples.forEach(a => {
+                    const seat = this.findSeat(a.homeSeatId);
+                    a.yielded = !!seat.occupant;
+                    if (!a.yielded) seat.occupant = a;
+                    const seatId = a.yielded ? null : seat.id;
+                    if (a.seatId !== seatId) {
+                        a.seatId = seatId;
+                        SanghaMultiplayerManager.updateLabelContent(a);
+                    }
+                });
+                this.seats.forEach(s => this.updateSeatVisual(s));
+                return losers;
             },
 
             updateSeatVisual(seat) {
@@ -6129,48 +6120,14 @@
            2. WAITING QUEUE MANAGER (HÀNG CHỜ NGOÀI SÂN CHÙA KHI ĐẦY 50 CHỖ)
         ------------------------------------------------------------------------- */
         const WaitingQueueManager = {
-            queue: [], // { id, name, role, isLocalPlayer, avatarMesh, labelEl, queueTime }
+            queue: [], // real people (local identity or remote attendees) waiting in the courtyard, first come first
 
-            enqueue(attendee) {
-                if (this.queue.some(q => q.id === attendee.id)) {
-                    return this.getPosition(attendee.id);
-                }
-                this.queue.push(attendee);
-                attendee.isWaiting = true;
-
-                this.layoutWaitingAvatars();
-                updateSanctuaryHudCount();
-
-                if (attendee.isLocalPlayer) {
-                    updateFloatingQueuePill(true, this.queue.length);
-                }
-                return this.queue.length;
-            },
-
-            dequeue() {
-                const attendee = this.queue.shift();
-                if (attendee) attendee.isWaiting = false;
-                this.layoutWaitingAvatars();
-                updateSanctuaryHudCount();
-
-                if (attendee && attendee.isLocalPlayer) {
-                    updateFloatingQueuePill(false);
-                }
-                return attendee;
-            },
-
-            remove(attendeeId) {
-                const idx = this.queue.findIndex(q => q.id === attendeeId);
-                if (idx !== -1) {
-                    const removed = this.queue.splice(idx, 1)[0];
-                    if (removed) removed.isWaiting = false;
-                    this.layoutWaitingAvatars();
-                    updateSanctuaryHudCount();
-
-                    if (removed && removed.isLocalPlayer) {
-                        updateFloatingQueuePill(false);
-                    }
-                }
+            rebuild(people) {
+                this.queue = people
+                    .filter(p => p.queuedAt && !SanctuarySeatsManager.findSeatByOccupantId(p.id))
+                    .sort((a, b) => (a.queuedAt - b.queuedAt) || (a.id < b.id ? -1 : 1));
+                const pos = this.getPosition(localPlayerIdentity.id);
+                updateFloatingQueuePill(pos > 0, pos);
             },
 
             getPosition(attendeeId) {
@@ -6178,41 +6135,31 @@
                 return idx !== -1 ? idx + 1 : -1;
             },
 
-            processQueue() {
-                if (SanctuarySeatsManager.isFull() || this.queue.length === 0) return;
-
-                const next = this.dequeue();
-                if (!next) return;
-
-                if (next.isLocalPlayer) {
-                    playSingingBowlAudio();
-                    showToast('🔔 Chánh Điện đã có chỗ trống! Đang tự động đưa bạn vào...');
-                    setTimeout(() => {
-                        switchPrimaryMode('hall');
-                    }, 500);
-                } else {
-                    // Assign seat inside Sanctuary
-                    const assigned = SanctuarySeatsManager.assignSeat(next);
-                    if (assigned && next.mesh) {
-                        SanghaMultiplayerManager.moveToSpace(next, 'hall');
-                        next.mesh.visible = (state.primaryMode === 'hall');
-                    }
-                }
+            join() {
+                if (!localPlayerIdentity.queuedAt) localPlayerIdentity.queuedAt = Date.now();
+                SanghaMultiplayerManager.refresh();
+                return this.getPosition(localPlayerIdentity.id);
             },
 
-            layoutWaitingAvatars() {
-                // Standing respectfully outside the temple terrace waiting in line
-                this.queue.forEach((q, idx) => {
-                    if (!q.mesh || q.isLocalPlayer) return;
-                    const side = idx % 2 === 0 ? -1 : 1;
-                    const row = Math.floor(idx / 2);
-                    const wx = side * (2.2 + row * 0.4);
-                    const wz = -0.5 + row * 1.5;
-                    q.mesh.position.set(wx, 0, wz);
-                    q.mesh.rotation.y = Math.PI; // facing toward temple door
-                    q.mesh.visible = (state.primaryMode === 'garden');
-                    if (q.setSitting) q.setSitting(false);
-                });
+            leave() {
+                localPlayerIdentity.queuedAt = null;
+                SanghaMultiplayerManager.refresh();
+            },
+
+            // When cushions free up, whoever is at the front of the line walks in by themselves. We stay in
+            // the line until our cushion is claimed, so the person behind us doesn't take the same free seat.
+            processQueue() {
+                if (this.admitting || state.primaryMode === 'hall') return;
+                if (this.getPosition(localPlayerIdentity.id) < 1) return;
+                if (!SanctuarySeatsManager.hasRoomFor(localPlayerIdentity.id)) return;
+
+                this.admitting = true;
+                playSingingBowlAudio();
+                showToast('🔔 Chánh Điện đã có chỗ trống! Đang tự động đưa bạn vào...');
+                setTimeout(() => {
+                    this.admitting = false;
+                    switchPrimaryMode('hall');
+                }, 500);
             }
         };
 
@@ -6231,8 +6178,22 @@
         }
 
         function cancelWaitingQueue() {
-            WaitingQueueManager.remove(localPlayerIdentity.id);
+            WaitingQueueManager.leave();
             showToast('Đã rời khỏi hàng chờ vào Chánh Điện.');
+        }
+
+        // Local cushion claims are timestamped; every browser resolves a contested cushion by earliest claim
+        function claimLocalSeat(seatId) {
+            localPlayerIdentity.seatId = seatId;
+            localPlayerIdentity.seatAt = Date.now();
+            localPlayerIdentity.queuedAt = null;
+            SanghaMultiplayerManager.refresh();
+        }
+
+        function releaseLocalSeat() {
+            localPlayerIdentity.seatId = null;
+            localPlayerIdentity.seatAt = null;
+            SanghaMultiplayerManager.refresh();
         }
 
         /* -------------------------------------------------------------------------
@@ -6242,7 +6203,8 @@
             const modal = document.getElementById('sanctuary-full-modal');
             if (!modal) return;
             const posEl = document.getElementById('modal-queue-position');
-            const pos = WaitingQueueManager.queue.length + 1;
+            const mine = WaitingQueueManager.getPosition(localPlayerIdentity.id);
+            const pos = mine > 0 ? mine : WaitingQueueManager.queue.length + 1;
             if (posEl) posEl.textContent = `#${pos}`;
             state.modalOpen = true;
             modal.classList.remove('hidden');
@@ -6257,7 +6219,7 @@
 
         function confirmJoinWaitingQueue() {
             closeSanctuaryFullModal();
-            const pos = WaitingQueueManager.enqueue(localPlayerIdentity);
+            const pos = WaitingQueueManager.join();
             playSingingBowlAudio();
             showToast(`⏳ Bạn đã vào hàng chờ Chánh Điện (Vị trí #${pos}). Khi có chỗ, hệ thống sẽ tự động mời bạn vào!`);
         }
@@ -6374,7 +6336,7 @@
             }
 
             // Assign local player to this seat!
-            SanctuarySeatsManager.assignSeat(localPlayerIdentity, seatId);
+            claimLocalSeat(seatId);
             player3D.pos.set(seat.x, 1.05, seat.z);
             player3D.yaw = 0;
             player3D.walkDestination = null;
@@ -6383,12 +6345,20 @@
             showToast(`🙏 Bạn đã chuyển sang an tọa tại Tọa cụ #${seatId}.`);
         }
 
+        let lastQueueHintAt = 0;
+
         function requestEnterSanctuaryHall() {
             if (state.primaryMode === 'hall') return;
 
-            // Strict 50-Seat Cap
-            if (SanctuarySeatsManager.isFull()) {
-                openSanctuaryFullModal();
+            // Strict 50-seat cap for real people, first come first served
+            if (!SanctuarySeatsManager.hasRoomFor(localPlayerIdentity.id)) {
+                const pos = WaitingQueueManager.getPosition(localPlayerIdentity.id);
+                if (pos < 1) {
+                    openSanctuaryFullModal();
+                } else if (Date.now() - lastQueueHintAt > 3000) {
+                    lastQueueHintAt = Date.now();
+                    showToast(`⏳ Bạn đang ở vị trí #${pos} trong hàng chờ. Khi có chỗ, hệ thống sẽ tự động mời bạn vào.`);
+                }
                 return;
             }
 
@@ -6398,122 +6368,314 @@
         /* -------------------------------------------------------------------------
            4. SANGHA MULTIPLAYER MANAGER & REALTIME PRESENCE
         ------------------------------------------------------------------------- */
+        // Supabase project for syncing visitors across devices (Project Settings → API Keys). The publishable
+        // (anon) key is meant to be public; never put the secret / service_role key here. Leave both empty to
+        // sync only between tabs of the same browser.
+        const SUPABASE_URL = 'https://fovsmufitvwlosdtwxhs.supabase.co';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_h31QF3c5XPTQs1SZ19ITNg_Ojaz27s2';
+        const SANGHA_ROOM = 'chua-tinh-tam-dao-trang';
+
         const SanghaMultiplayerManager = {
-            channel: null,
+            transport: null,   // 'supabase' (every device) | 'local' (tabs of this browser) | null (alone)
+            sbClient: null,
+            sbChannel: null,
+            localChannel: null,
+            peerStates: {},    // id -> latest shared state of every other real visitor
             attendees: [], // List of { id, role, name, prayer, mode, mesh, labelEl, phase, speed, baseX, baseZ, isSitting }
 
             init() {
                 initLocalPlayerIdentity();
+                this.seedDefaultDevotees();
+                this.refresh(false);
 
-                // 1. Setup BroadcastChannel for Instant 0-Latency Multi-Tab Sync
-                try {
-                    this.channel = new BroadcastChannel('chua_tinh_tam_sangha');
-                    this.channel.onmessage = (e) => this.handleChannelMessage(e.data);
-                } catch(err) {
-                    console.log('BroadcastChannel not supported');
+                if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY && window.supabase) {
+                    this.connectSupabase();
+                } else {
+                    this.connectLocal();
                 }
 
-                // 2. Seed Initial Community of Devotees & Guests
-                this.seedDefaultDevotees();
+                window.addEventListener('pagehide', () => this.disconnect());
+                window.addEventListener('pageshow', (e) => { if (e.persisted) this.publishState(); });
+            },
 
-                // 3. Broadcast HELLO to other open tabs
-                this.broadcast({
-                    type: 'HELLO',
-                    player: {
-                        id: localPlayerIdentity.id,
-                        role: localPlayerIdentity.role,
-                        name: localPlayerIdentity.name,
-                        space: state.primaryMode,
-                        pos: { x: player3D.pos.x, y: player3D.pos.y, z: player3D.pos.z },
-                        yaw: player3D.yaw
+            // What everyone else needs to know about us. Positions between rests travel as 'move' broadcasts.
+            localState() {
+                return {
+                    id: localPlayerIdentity.id,
+                    role: localPlayerIdentity.role,
+                    name: localPlayerIdentity.name,
+                    space: state.primaryMode,
+                    seatId: localPlayerIdentity.seatId,
+                    seatAt: localPlayerIdentity.seatAt,
+                    queuedAt: localPlayerIdentity.queuedAt,
+                    kneel: player3D.isKneeling,
+                    x: +player3D.pos.x.toFixed(2),
+                    z: +player3D.pos.z.toFixed(2),
+                    yaw: +player3D.yaw.toFixed(2)
+                };
+            },
+
+            // Presence holds each visitor's slow-changing state and tells us when they leave (even if the tab
+            // is just closed); broadcast carries their position while they walk
+            connectSupabase() {
+                let joined = false;
+                let lastError = '';
+                const giveUp = (reason) => {
+                    if (joined || this.transport === 'local') return;
+                    try { this.sbClient.removeAllChannels(); } catch (e) {}
+                    this.sbChannel = null;
+                    console.warn('Supabase Realtime unavailable; syncing between tabs of this browser only:', reason);
+                    this.connectLocal();
+                };
+                try {
+                    this.sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+                        auth: { persistSession: false, autoRefreshToken: false }
+                    });
+                    this.sbChannel = this.sbClient.channel(SANGHA_ROOM, {
+                        config: { presence: { key: localPlayerIdentity.id }, broadcast: { self: false } }
+                    });
+                    this.sbChannel
+                        .on('presence', { event: 'sync' }, () => this.onPresenceSync(this.sbChannel.presenceState()))
+                        .on('broadcast', { event: 'move' }, ({ payload }) => this.applyMove(payload))
+                        .subscribe((status, err) => {
+                            if (status === 'SUBSCRIBED') {
+                                // Also fires after an automatic reconnect, which needs our state tracked again
+                                joined = true;
+                                this.transport = 'supabase';
+                                this.publishState();
+                            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                                // The client retries by itself, and a first attempt can fail transiently
+                                lastError = `${status} ${err ? err.message || err : ''}`;
+                            }
+                        });
+                    setTimeout(() => giveUp(lastError || 'no connection after 10s'), 10000);
+                } catch (e) {
+                    giveUp(e.message);
+                }
+            },
+
+            onPresenceSync(presence) {
+                const next = {};
+                Object.keys(presence).forEach(key => {
+                    const metas = presence[key];
+                    const st = metas && metas[metas.length - 1];
+                    if (st && st.id && st.id !== localPlayerIdentity.id) next[st.id] = st;
+                });
+                this.peerStates = next;
+                this.refresh(false);
+            },
+
+            // Fallback without Supabase: the same states and moves, passed between tabs of this browser
+            connectLocal() {
+                try {
+                    this.localChannel = new BroadcastChannel('chua_tinh_tam_sangha_v2');
+                } catch (e) {
+                    return; // No sync at all; the temple still works for this visitor alone
+                }
+                this.transport = 'local';
+                const seenAt = {};
+                this.localChannel.onmessage = (e) => {
+                    const msg = e.data;
+                    if (!msg || msg.id === localPlayerIdentity.id) return;
+                    seenAt[msg.id] = Date.now();
+                    if (msg.type === 'hello' || msg.type === 'state') {
+                        this.peerStates[msg.id] = msg.state;
+                        this.refresh(false);
+                        if (msg.type === 'hello') {
+                            this.localChannel.postMessage({ type: 'state', id: localPlayerIdentity.id, state: this.localState() });
+                        }
+                    } else if (msg.type === 'leave') {
+                        delete this.peerStates[msg.id];
+                        this.refresh(false);
+                    } else if (msg.type === 'move') {
+                        this.applyMove(msg.payload);
+                    }
+                };
+                this.localChannel.postMessage({ type: 'hello', id: localPlayerIdentity.id, state: this.localState() });
+
+                // A tab that vanishes without saying goodbye (crash, app killed) is dropped after a long silence.
+                // Hidden tabs may only get to run this once a minute, hence the generous cutoff.
+                setInterval(() => {
+                    this.localChannel.postMessage({ type: 'state', id: localPlayerIdentity.id, state: this.localState() });
+                    const cutoff = Date.now() - 150000;
+                    const silent = Object.keys(this.peerStates).filter(id => (seenAt[id] || 0) < cutoff);
+                    silent.forEach(id => delete this.peerStates[id]);
+                    if (silent.length) this.refresh(false);
+                }, 20000);
+            },
+
+            publishState() {
+                // Coalesce bursts: entering the hall changes space, cushion and posture together
+                clearTimeout(this._publishTimer);
+                this._publishTimer = setTimeout(() => {
+                    const st = this.localState();
+                    if (this.transport === 'supabase') {
+                        this.sbChannel.track(st).catch(() => {});
+                    } else if (this.transport === 'local') {
+                        this.localChannel.postMessage({ type: 'state', id: st.id, state: st });
+                    }
+                }, 150);
+            },
+
+            sendMove() {
+                const payload = {
+                    id: localPlayerIdentity.id,
+                    space: state.primaryMode,
+                    x: +player3D.pos.x.toFixed(2),
+                    z: +player3D.pos.z.toFixed(2),
+                    yaw: +player3D.yaw.toFixed(2)
+                };
+                if (this.transport === 'supabase') {
+                    this.sbChannel.send({ type: 'broadcast', event: 'move', payload }).catch(() => {});
+                } else if (this.transport === 'local') {
+                    this.localChannel.postMessage({ type: 'move', id: payload.id, payload });
+                }
+            },
+
+            disconnect() {
+                if (this.transport === 'supabase') {
+                    this.sbChannel.untrack().catch(() => {});
+                } else if (this.transport === 'local') {
+                    this.localChannel.postMessage({ type: 'leave', id: localPlayerIdentity.id });
+                }
+            },
+
+            applyMove(p) {
+                const att = p && this.attendees.find(a => a.isRemote && a.id === p.id);
+                if (!att) return; // Their shared state hasn't arrived yet; it will place them
+                att.targetPos = new THREE.Vector3(p.x, 0, p.z);
+                att.targetYaw = p.yaw + Math.PI; // yaw 0 looks toward -Z, avatar models face +Z
+                if (att.mode !== p.space) {
+                    this.moveToSpace(att, p.space);
+                    att.mesh.position.copy(att.targetPos); // jump, don't glide between spaces
+                }
+            },
+
+            // Re-derive everything shared (who is here, who sits where, who waits) from the latest states
+            refresh(publish = true) {
+                this.syncRemoteAttendees();
+
+                const remotes = this.attendees.filter(a => a.isRemote);
+                const claims = [];
+                if (state.primaryMode === 'hall' && localPlayerIdentity.seatId) {
+                    claims.push({ person: localPlayerIdentity, seatId: localPlayerIdentity.seatId, at: localPlayerIdentity.seatAt || 0 });
+                }
+                remotes.forEach(a => {
+                    if (a.mode === 'hall' && a.claimSeatId) claims.push({ person: a, seatId: a.claimSeatId, at: a.seatAt || 0 });
+                });
+                const losers = SanctuarySeatsManager.rebuild(claims, this.attendees.filter(a => a.isSimulated && a.homeSeatId));
+                remotes.forEach(a => {
+                    const seatId = a.mode === 'hall' && !losers.includes(a) ? a.claimSeatId : null;
+                    if (a.seatId !== seatId) {
+                        a.seatId = seatId;
+                        this.updateLabelContent(a);
                     }
                 });
-
-                // Window unload cleanup
-                window.addEventListener('beforeunload', () => {
-                    this.broadcast({ type: 'LEAVE', id: localPlayerIdentity.id });
-                });
+                WaitingQueueManager.rebuild([localPlayerIdentity, ...remotes]);
 
                 updateSanctuaryHudCount();
-            },
+                if (!document.getElementById('seat-map-modal').classList.contains('hidden')) renderSeatMapModal();
+                if (publish) this.publishState();
 
-            broadcast(data) {
-                if (this.channel) {
-                    try { this.channel.postMessage(data); } catch(e){}
+                if (losers.includes(localPlayerIdentity)) {
+                    this.resolveLostSeat();
+                } else {
+                    WaitingQueueManager.processQueue();
                 }
             },
 
-            handleChannelMessage(data) {
-                if (!data || data.id === localPlayerIdentity.id) return;
+            // Someone claimed our cushion a moment before us: take another, or go back to the line if the hall just filled
+            resolveLostSeat() {
+                const lost = localPlayerIdentity.seatId;
+                localPlayerIdentity.seatId = null;
+                const seatId = SanctuarySeatsManager.pickSeatFor();
+                if (seatId) {
+                    const seat = SanctuarySeatsManager.findSeat(seatId);
+                    player3D.pos.set(seat.x, 1.05, seat.z);
+                    player3D.yaw = 0;
+                    claimLocalSeat(seatId);
+                    showToast(`🙏 Tọa cụ #${lost} vừa có người an tọa trước. Bạn được mời sang Tọa cụ #${seatId}.`);
+                } else {
+                    localPlayerIdentity.seatAt = null;
+                    localPlayerIdentity.queuedAt = Date.now();
+                    switchPrimaryMode('garden');
+                    this.refresh();
+                    showToast('Chánh Điện vừa đủ 50 chỗ. Bạn được mời ra hàng chờ ngoài sân, khi có chỗ sẽ tự động vào lại.');
+                }
+            },
 
-                if (data.type === 'HELLO') {
-                    // Another tab joined! Add remote player & send back WELCOME
-                    this.upsertRemotePlayer(data.player);
-                    this.broadcast({
-                        type: 'WELCOME',
-                        player: {
-                            id: localPlayerIdentity.id,
-                            role: localPlayerIdentity.role,
-                            name: localPlayerIdentity.name,
-                            space: state.primaryMode,
-                            pos: { x: player3D.pos.x, y: player3D.pos.y, z: player3D.pos.z },
-                            yaw: player3D.yaw,
-                            seatId: localPlayerIdentity.seatId
-                        }
-                    });
-                } else if (data.type === 'WELCOME') {
-                    this.upsertRemotePlayer(data.player);
-                } else if (data.type === 'MOVE') {
-                    const att = this.attendees.find(a => a.id === data.id);
-                    if (att && att.mesh) {
-                        // Broadcast y is the remote camera's eye height; avatars stand on the floor
-                        att.targetPos = new THREE.Vector3(data.x, 0, data.z);
-                        att.targetYaw = data.yaw + Math.PI; // yaw 0 looks toward -Z, avatar models face +Z
-                        if (att.mode !== data.space) {
-                            this.moveToSpace(att, data.space);
-                            att.mesh.position.copy(att.targetPos); // jump, don't glide between spaces
-                        }
-                        att.mesh.visible = (att.mode === state.primaryMode);
+            // Create, update or remove one avatar per real visitor so the 3D world matches the shared states
+            syncRemoteAttendees() {
+                this.attendees.filter(a => a.isRemote && !this.peerStates[a.id]).forEach(a => this.removeAttendee(a.id));
+
+                const arrivals = [];
+                Object.values(this.peerStates).forEach(st => {
+                    let att = this.attendees.find(a => a.id === st.id);
+                    if (!att) {
+                        att = this.createDevoteeObject({
+                            id: st.id,
+                            role: st.role,
+                            name: st.name,
+                            prayer: 'Đạo hữu cùng tu tập',
+                            mode: st.space,
+                            isRemote: true
+                        });
+                        att.mesh.position.set(st.x || 0, 0, st.z || 0);
+                        att.mesh.rotation.y = (st.yaw || 0) + Math.PI;
+                        this.attendees.push(att);
+                        arrivals.push(att);
                     }
-                } else if (data.type === 'ROLE_CHANGE') {
-                    const att = this.attendees.find(a => a.id === data.id);
-                    if (att) {
-                        att.role = data.role;
-                        att.name = data.name;
-                        if (att.avatarObj && att.avatarObj.updateRole) {
-                            att.avatarObj.updateRole(data.role);
-                        }
+                    if (att.role !== st.role || att.name !== st.name) {
+                        att.role = st.role;
+                        att.name = st.name;
+                        att.avatarObj.updateRole(st.role);
                         this.updateLabelContent(att);
-                        renderSeatMapModal();
                     }
-                } else if (data.type === 'LEAVE') {
-                    this.removeAttendee(data.id);
-                    SanctuarySeatsManager.vacateByOccupantId(data.id);
-                    WaitingQueueManager.remove(data.id);
-                    renderSeatMapModal();
+                    if (att.mode !== st.space) {
+                        this.moveToSpace(att, st.space);
+                        att.mesh.position.set(st.x || 0, 0, st.z || 0);
+                    }
+                    // Only a new resting spot moves them; re-applying an old one would yank a walker backwards
+                    const restKey = `${st.x},${st.z},${st.yaw}`;
+                    if (att.restKey !== restKey) {
+                        att.restKey = restKey;
+                        att.targetPos = new THREE.Vector3(st.x || 0, 0, st.z || 0);
+                        att.targetYaw = (st.yaw || 0) + Math.PI;
+                    }
+                    att.claimSeatId = st.seatId || null;
+                    att.seatAt = st.seatAt || 0;
+                    att.queuedAt = st.queuedAt || null;
+                    att.isSitting = !!st.kneel;
+                    att.avatarObj.setKneeling(att.isSitting);
+                });
+
+                if (arrivals.length === 1) {
+                    const a = arrivals[0];
+                    showToast(`🙏 ${a.role === 'PHAT_TU' ? 'Phật tử' : 'Lữ khách'} ${a.name} vừa bước vào chùa.`);
+                } else if (arrivals.length > 1) {
+                    showToast(`🙏 Có ${arrivals.length} đạo hữu đang cùng có mặt tại chùa.`);
                 }
             },
 
-            upsertRemotePlayer(p) {
-                if (!p || p.id === localPlayerIdentity.id) return;
-                let att = this.attendees.find(a => a.id === p.id);
-                if (!att) {
-                    att = this.createDevoteeObject({
-                        id: p.id,
-                        role: p.role,
-                        name: p.name,
-                        prayer: 'Đạo hữu cùng tu tập',
-                        mode: p.space || 'garden',
-                        isRemote: true
-                    });
-                    if (p.pos) {
-                        att.mesh.position.set(p.pos.x, 0, p.pos.z);
+            // Stream our position only while it changes (about 3 times a second), then store the resting spot
+            // in presence so visitors who arrive later see us where we stopped
+            syncLocalMovement(elapsed) {
+                if (!this.transport) return;
+                const p = player3D.pos;
+                const s = this._sent;
+                const changed = !s || s.space !== state.primaryMode ||
+                    Math.hypot(p.x - s.x, p.z - s.z) > 0.05 ||
+                    Math.abs(Math.atan2(Math.sin(player3D.yaw - s.yaw), Math.cos(player3D.yaw - s.yaw))) > 0.25;
+                if (changed) {
+                    this._settled = false;
+                    if (elapsed - (this._sentAt || -1) >= 0.33) {
+                        this._sent = { x: p.x, z: p.z, yaw: player3D.yaw, space: state.primaryMode };
+                        this._sentAt = elapsed;
+                        this.sendMove();
                     }
-                    this.attendees.push(att);
-                    showToast(`🙏 ${p.role === 'PHAT_TU' ? 'Phật tử' : 'Lữ khách'} ${p.name} vừa bước vào chùa.`);
-                }
-                if (p.seatId) {
-                    SanctuarySeatsManager.assignSeat(att, p.seatId);
+                } else if (!this._settled && elapsed - this._sentAt > 0.6) {
+                    this._settled = true;
+                    this.publishState();
                 }
             },
 
@@ -6534,19 +6696,6 @@
             },
 
             seedDefaultDevotees() {
-                // Clear any simulated attendees
-                this.attendees.filter(a => a.isSimulated).forEach(a => {
-                    if (a.mesh && a.mesh.parent) a.mesh.parent.remove(a.mesh);
-                    if (a.labelEl && a.labelEl.parentNode) a.labelEl.parentNode.removeChild(a.labelEl);
-                });
-                this.attendees = this.attendees.filter(a => !a.isSimulated);
-
-                // Clear all seats
-                SanctuarySeatsManager.seats.forEach(s => {
-                    s.occupant = null;
-                    SanctuarySeatsManager.updateSeatVisual(s);
-                });
-
                 // Seed 22 devotees and guests seated peacefully in Chánh Điện across the 50 cushions
                 const seatedData = [
                     { role: 'PHAT_TU', name: 'Phật tử Diệu Âm', prayer: 'Nam Mô A Di Đà Phật' },
@@ -6574,7 +6723,6 @@
                 ];
 
                 seatedData.forEach((d, idx) => {
-                    const seatId = idx + 1;
                     const att = this.createDevoteeObject({
                         id: `seated_${idx}`,
                         role: d.role,
@@ -6584,8 +6732,12 @@
                         isSitting: true,
                         isSimulated: true
                     });
+                    // Each sample keeps a home cushion and gives it up whenever a real visitor needs it
+                    att.homeSeatId = idx + 1;
+                    const seat = SanctuarySeatsManager.findSeat(att.homeSeatId);
+                    att.mesh.position.set(seat.x, 0.16, seat.z);
+                    att.mesh.rotation.y = Math.PI; // avatars face +Z, so turn them toward the Buddha at -Z
                     this.attendees.push(att);
-                    SanctuarySeatsManager.assignSeat(att, seatId);
                 });
 
                 // Seed 5 walking devotees outside in the garden
@@ -6617,7 +6769,7 @@
 
             createDevoteeObject(opt) {
                 const isPhatTu = opt.role === 'PHAT_TU';
-                const avatarObj = this.buildAvatarMesh(opt);
+                const avatarObj = opt.isRemote ? this.buildSwitchableAvatar(opt) : this.buildAvatarMesh(opt);
                 const mesh = avatarObj.root;
 
                 if (opt.mode === 'hall') {
@@ -6648,13 +6800,30 @@
                     speed: opt.speed || 0.3,
                     baseX: opt.x || 0,
                     baseZ: opt.z || 0,
-                    walkMode: opt.walkMode || 'walk',
-                    setSitting: (sitting) => {
-                        attendee.isSitting = sitting;
-                    }
+                    walkMode: opt.walkMode || 'walk'
                 };
 
                 return attendee;
+            },
+
+            // Real visitors stand up and kneel down, so they carry both poses and show one at a time
+            buildSwitchableAvatar(opt) {
+                const standing = this.buildAvatarMesh({ ...opt, isSitting: false });
+                const kneeling = this.buildAvatarMesh({ ...opt, isSitting: true });
+                const root = new THREE.Group();
+                root.add(standing.root, kneeling.root);
+                kneeling.root.visible = false;
+                return {
+                    root,
+                    updateRole(role) {
+                        standing.updateRole(role);
+                        kneeling.updateRole(role);
+                    },
+                    setKneeling(kneel) {
+                        standing.root.visible = !kneel;
+                        kneeling.root.visible = kneel;
+                    }
+                };
             },
 
             buildAvatarMesh(opt) {
@@ -6806,7 +6975,8 @@
                 const isGarden = state.primaryMode === 'garden';
 
                 this.attendees.forEach(att => {
-                    const isVisibleInSpace = (att.mode === state.primaryMode);
+                    // Samples that gave their cushion to a real visitor have stepped out
+                    const isVisibleInSpace = (att.mode === state.primaryMode) && !att.yielded;
                     if (!isVisibleInSpace) {
                         if (att.labelEl) att.labelEl.style.opacity = '0';
                         if (att.mesh) att.mesh.visible = false;
@@ -6817,9 +6987,14 @@
 
                     // Remote player interpolation
                     if (att.isRemote && att.targetPos) {
-                        att.mesh.position.lerp(att.targetPos, 0.15);
+                        const p = att.mesh.position;
+                        p.x += (att.targetPos.x - p.x) * 0.15;
+                        p.z += (att.targetPos.z - p.z) * 0.15;
+                        // Kneeling on a cushion rests on its top, like the seated samples
+                        p.y += ((att.isSitting && att.seatId ? 0.16 : 0) - p.y) * 0.15;
                         if (att.targetYaw !== undefined) {
-                            att.mesh.rotation.y += (att.targetYaw - att.mesh.rotation.y) * 0.15;
+                            const turn = att.targetYaw - att.mesh.rotation.y;
+                            att.mesh.rotation.y += Math.atan2(Math.sin(turn), Math.cos(turn)) * 0.15; // shortest way round
                         }
                     } else if (att.isSimulated) {
                         if (att.isSitting) {
@@ -6858,21 +7033,7 @@
                     }
                 });
 
-                // Periodically broadcast local player position to other tabs
-                if (state.viewMode === 'fps' && this.channel) {
-                    if (!this._lastBcast || (elapsed - this._lastBcast > 0.05)) {
-                        this._lastBcast = elapsed;
-                        this.broadcast({
-                            type: 'MOVE',
-                            id: localPlayerIdentity.id,
-                            x: player3D.pos.x,
-                            y: player3D.pos.y,
-                            z: player3D.pos.z,
-                            yaw: player3D.yaw,
-                            space: state.primaryMode
-                        });
-                    }
-                }
+                this.syncLocalMovement(elapsed);
             }
         };
 
@@ -7166,6 +7327,7 @@
             } else if (state.primaryMode === 'hall') {
                 showToast('🚶 Bạn đã đứng dậy để tiếp tục đi dạo trong Chánh Điện.');
             }
+            SanghaMultiplayerManager.publishState();
         }
 
         function clampPilgrimPosition() {
@@ -7181,12 +7343,10 @@
                 // If walking right into the glowing Chánh Điện doorway, check 50 seats capacity & enter!
                 if (Math.abs(player3D.pos.x) < 2.8 && player3D.pos.z < -5.8 && player3D.pos.z > -8.5) {
                     player3D.walkDestination = null;
-                    if (SanctuarySeatsManager.isFull()) {
+                    if (!SanctuarySeatsManager.hasRoomFor(localPlayerIdentity.id)) {
                         player3D.pos.z = -5.7; // Stop before door
-                        openSanctuaryFullModal();
-                    } else {
-                        requestEnterSanctuaryHall();
                     }
+                    requestEnterSanctuaryHall();
                     return;
                 }
 
@@ -7882,7 +8042,7 @@
                     toggleKneelingPosture(false);
 
                     // Vacate local player seat in Sanctuary so it's available for others
-                    SanctuarySeatsManager.vacateByOccupantId(localPlayerIdentity.id);
+                    releaseLocalSeat();
 
                     // Toggle 3D Worlds: Show Outdoor Courtyard, Hide Indoor Hall
                     courtyardWorldGroup.visible = true;
@@ -7933,10 +8093,11 @@
                     tabGarden.classList.remove('is-active');
 
                     // Assign an orderly seat to local player in Sanctuary Hall!
-                    let mySeat = SanctuarySeatsManager.findSeatByOccupantId(localPlayerIdentity.id);
-                    if (!mySeat) {
-                        mySeat = SanctuarySeatsManager.assignSeat(localPlayerIdentity);
+                    if (!localPlayerIdentity.seatId) {
+                        const seatId = SanctuarySeatsManager.pickSeatFor();
+                        if (seatId) claimLocalSeat(seatId);
                     }
+                    const mySeat = SanctuarySeatsManager.findSeatByOccupantId(localPlayerIdentity.id);
                     if (mySeat) {
                         player3D.pos.set(mySeat.x, 1.05, mySeat.z);
                         player3D.yaw = 0;
@@ -8452,23 +8613,8 @@
             updateUserIdentityUI();
             updateFirstPersonHandsRole();
 
-            // If user has a seat, update occupant data
-            const mySeat = SanctuarySeatsManager.findSeatByOccupantId(localPlayerIdentity.id);
-            if (mySeat) {
-                mySeat.occupant.role = localPlayerIdentity.role;
-                mySeat.occupant.name = localPlayerIdentity.name;
-                SanctuarySeatsManager.updateSeatVisual(mySeat);
-            }
-
-            // Broadcast role change to other tabs
-            if (SanghaMultiplayerManager) {
-                SanghaMultiplayerManager.broadcast({
-                    type: 'ROLE_CHANGE',
-                    id: localPlayerIdentity.id,
-                    role: localPlayerIdentity.role,
-                    name: localPlayerIdentity.name
-                });
-            }
+            // Recolor our cushion and share the new title with everyone
+            SanghaMultiplayerManager.refresh();
 
             const label = document.getElementById('text-member');
             if (label) label.textContent = memberProfile ? 'Thẻ Phật tử' : 'Đăng ký Phật tử';
